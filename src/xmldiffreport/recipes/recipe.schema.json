@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bilouro.github.io/xmldiffreport/recipe.schema.json",
+  "title": "xmldiffreport recipe",
+  "description": "Schema for the parsed form of an xmldiffreport recipe (.toml). Validates the dict produced by tomllib.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": { "type": "string" },
+    "applied_env": {
+      "type": "string",
+      "description": "Name of the 'already applied' environment; pairs involving it are classified INFO instead of CONFLICT."
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "unit": {
+          "type": "string",
+          "description": "Tag of the comparison unit. If omitted, the root's direct children are the units."
+        },
+        "unordered": {
+          "type": "boolean",
+          "description": "Match children by key rather than by position (default true)."
+        },
+        "ignore_attrs": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Attribute names treated as volatile and never reported."
+        }
+      }
+    },
+    "elements": {
+      "type": "object",
+      "description": "Per-tag configuration.",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "pattern": "^(#text|\\*tag|\\*kinds|@[^@]+|child:[^@]+@[^@]+|child:[^@]+#text)$"
+            },
+            "description": "Identity tokens joined by '|'. Tokens: @ATTR, #text, *tag, *kinds, child:TAG@ATTR, child:TAG#text."
+          },
+          "inline": {
+            "type": "boolean",
+            "description": "Treat children as pseudo-attributes instead of opening a new level."
+          }
+        }
+      }
+    }
+  }
+}

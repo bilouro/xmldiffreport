@@ -1,0 +1,9 @@
+# Generic recipe (default). No dialect knowledge:
+#  - units = the root's direct children
+#  - identity = @NAME, else #text, else a composite of the attributes
+#  - nothing is ignored; no "applied" environment (everything is DIFF)
+name = "generic"
+
+[defaults]
+unordered = true
+ignore_attrs = []

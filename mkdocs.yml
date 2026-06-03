@@ -1,0 +1,137 @@
+site_name: xmldiffreport
+site_url: https://bilouro.github.io/xmldiffreport/
+site_description: >-
+  N-way structural & semantic XML diff that produces human-readable Markdown
+  reports, driven by per-dialect recipes (Control-M, sitemaps, and more).
+site_author: Victor Bilouro
+copyright: Copyright &copy; 2026 Victor Bilouro · MIT
+repo_url: https://github.com/bilouro/xmldiffreport
+repo_name: bilouro/xmldiffreport
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: en
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+hooks:
+  - mkdocs_hooks.py
+
+plugins:
+  - search:
+      lang:
+        - pt
+        - en
+  - social:
+      cards_layout_options:
+        background_color: "#3f51b5"
+        color: "#ffffff"
+  - i18n:
+      docs_structure: suffix
+      reconfigure_material: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: pt
+          name: Português
+          build: true
+          site_name: xmldiffreport
+          site_description: >-
+            Diff estrutural e semântico de XML, N-way, com relatórios em
+            Markdown, guiado por recipes (Control-M, sitemaps, e mais).
+          nav_translations:
+            Home: Início
+            Getting Started: Começar
+            How it compares: Comparação
+            Guide: Guia
+            Inputs & file layout: Inputs e organização dos ficheiros
+            How it works: Como funciona
+            Writing recipes: Escrever recipes
+            Recipe from XML (LLM): Recipe a partir de XML (LLM)
+            Usage harness: Harness de uso
+            API Reference: Referência API
+            Contributing: Contribuir
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            show_source: false
+            show_root_heading: true
+            heading_level: 3
+            members_order: source
+            docstring_style: google
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started/index.md
+  - How it compares: comparison.md
+  - Guide:
+    - Inputs & file layout: guide/inputs.md
+    - How it works: guide/how-it-works.md
+    - Writing recipes: guide/recipes.md
+    - Recipe from XML (LLM): guide/recipe-from-llm.md
+    - Usage harness: guide/usage.md
+  - API Reference: api/index.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - toc:
+      permalink: true
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/bilouro/xmldiffreport
+      name: Source on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/xmldiffreport/
+      name: xmldiffreport on PyPI
+  generator: false

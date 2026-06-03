@@ -1,0 +1,49 @@
+# Recipe for BMC Control-M exports (DEFTABLE → SMART_FOLDER → JOB → ...)
+name = "controlm"
+applied_env = "prod"          # the "already applied" env; pairs with it → INFO
+
+[defaults]
+unit = "SMART_FOLDER"          # unit of comparison (the folder)
+unordered = true
+# attributes with no functional meaning (change on every export) — ignored
+ignore_attrs = [
+    "JOBISN", "VERSION", "VERSION_SERIAL", "VERSION_HOST", "VERSION_OPCODE",
+    "IS_CURRENT_VERSION", "CREATION_DATE", "CREATION_TIME", "CREATION_USER",
+    "CREATED_BY", "CHANGE_DATE", "CHANGE_TIME", "CHANGE_USERID", "LAST_UPLOAD",
+    "REAL_FOLDER_ID", "MODIFIED", "DATACENTER", "JOBS_IN_GROUP",
+    "FOLDER_ORDER_METHOD", "INSTANCE_COUNT",
+]
+
+# natural identity per element type
+[elements.SMART_FOLDER]
+key = ["@FOLDER_NAME"]
+
+[elements.JOB]
+key = ["@JOBNAME"]
+
+[elements.INCOND]
+key = ["@NAME"]
+
+[elements.OUTCOND]
+key = ["@NAME"]            # SIGN/ODATE are compared as attributes
+
+[elements.QUANTITATIVE]
+key = ["@NAME"]
+
+[elements.CONTROL]
+key = ["@NAME"]
+
+[elements.VARIABLE]
+key = ["@NAME"]            # VALUE is compared as an attribute
+
+[elements.RULE_BASED_CALENDARS]
+key = ["@NAME"]
+
+[elements.RULE_BASED_CALENDAR]
+key = ["@NAME"]
+
+# ON has no clear natural key (STMT="*", CODE repeats) → synthesize it from
+# CODE + the DO* actions, and treat it inline (children = pseudo-attributes)
+[elements.ON]
+key = ["@CODE", "*kinds"]
+inline = true

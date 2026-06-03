@@ -1,0 +1,23 @@
+# Recipe for sitemaps (https://www.sitemaps.org/). Shows identity by #text and
+# comparison of values held in element text (not in attributes).
+name = "sitemap"
+
+[defaults]
+unit = "url"
+unordered = true
+ignore_attrs = []
+
+# a <url> is identified by the text of its <loc>
+[elements.url]
+key = ["child:loc#text"]
+
+# <lastmod>/<priority>/<changefreq> are singletons: identity = the tag itself,
+# so the text is compared as a value (not treated as the identity)
+[elements.lastmod]
+key = ["*tag"]
+[elements.priority]
+key = ["*tag"]
+[elements.changefreq]
+key = ["*tag"]
+[elements.loc]
+key = ["*tag"]

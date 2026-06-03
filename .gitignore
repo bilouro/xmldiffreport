@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.env
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# MkDocs build output and social-cards cache
+site/
+.cache/
+
+# Output do próprio tool
+/reports/
+
+# Harness de uso: nunca versionar config real, dados nem relatórios
+usage/config.toml
+usage/reports/*
+!usage/reports/.gitkeep
+usage/**/*.xml
+
+# OS / editores
+.DS_Store
+.idea/
+.vscode/
