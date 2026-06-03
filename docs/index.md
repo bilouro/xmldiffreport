@@ -48,9 +48,13 @@ pip install xmldiffreport
 ```
 
 ```bash
-# Compare Control-M patches spread across environment folders
-xmldiffreport examples/controlm --recipe controlm -o report.md
+# Compare two (or more) XML files — uses the generic recipe by default
+xmldiffreport old.xml new.xml -o report.md
 ```
+
+Working with a known dialect (Control-M, sitemaps, …)? Add `--recipe`. Comparing
+files organized by environment (`uat/`, `bench/`, `prod/`)? See
+[Getting Started](getting-started/index.md) and [Inputs & file layout](guide/inputs.md).
 
 ```python
 from xmldiffreport import load_recipe, parse_xml, diff_sources, render

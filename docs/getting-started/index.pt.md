@@ -11,18 +11,25 @@ Requer **Python 3.11+** (usa o `tomllib` da biblioteca-padrão). A ferramenta
 
 ## O teu primeiro diff
 
-O repositório traz exemplos sintéticos que podes correr de imediato:
+A forma mais simples compara dois ficheiros que já tens — sem opções, sem
+conceitos:
 
 ```bash
-# Uma pasta cujas subpastas são ambientes (test/ uat/ bench/ prod/)
-xmldiffreport examples/controlm --recipe controlm -o report.md
+xmldiffreport old.xml new.xml -o report.md
 ```
 
-Abre o `report.md`: uma **tabela-resumo** de cada unidade que difere, e depois um
-**detalhe N-way** por elemento — uma coluna por ficheiro.
-
-O código de saída do processo é **`1` quando há conflito** (útil em CI), `0` caso
+Abre o `report.md`: uma **tabela-resumo** de cada elemento que difere, e depois um
+**detalhe N-way** — uma coluna por ficheiro. Passa mais ficheiros para mais
+colunas. O código de saída é **`1` quando há conflito** (útil em CI), `0` caso
 contrário.
+
+!!! tip "Experimenta sem preparar nada"
+    Clonaste o repo? Corre nos exemplos sintéticos incluídos:
+    ```bash
+    xmldiffreport examples/sitemap/old/sitemap.xml \
+                  examples/sitemap/new/sitemap.xml --recipe sitemap
+    ```
+    A pasta `examples/` vem **no repo**, não no pacote pip.
 
 ## Formatos de entrada
 

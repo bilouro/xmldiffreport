@@ -11,18 +11,23 @@ Requires **Python 3.11+** (uses the standard-library `tomllib`). The tool has
 
 ## Your first diff
 
-The repository ships synthetic examples you can run immediately:
+The simplest run compares two files you already have — no options, no concepts:
 
 ```bash
-# A folder whose sub-folders are environments (test/ uat/ bench/ prod/)
-xmldiffreport examples/controlm --recipe controlm -o report.md
+xmldiffreport old.xml new.xml -o report.md
 ```
 
-Open `report.md`: a **summary table** of every unit that differs, then an
-**N-way detail** table per element — one column per file.
+Open `report.md`: a **summary table** of every element that differs, then an
+**N-way detail** table — one column per file. Pass more files for more columns.
+The exit code is **`1` when a conflict is found** (useful in CI), `0` otherwise.
 
-The process exit code is **`1` when a conflict is found** (useful in CI), `0`
-otherwise.
+!!! tip "Try it with zero setup"
+    Cloned the repo? Run it on the bundled synthetic examples:
+    ```bash
+    xmldiffreport examples/sitemap/old/sitemap.xml \
+                  examples/sitemap/new/sitemap.xml --recipe sitemap
+    ```
+    The `examples/` folder ships **in the repo**, not in the pip package.
 
 ## Input layouts
 

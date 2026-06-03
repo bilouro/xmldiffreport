@@ -63,25 +63,56 @@ Requires Python 3.11+ (uses the standard-library `tomllib`). **No third-party de
 
 ## Quickstart
 
+Compare two XML files — that's the core idea:
+
 ```bash
-# Compare Control-M patches spread across environment folders
-xmldiffreport examples/controlm --recipe controlm -o report.md
-
-# Compare two sitemaps (identity by <loc>, values in element text)
-xmldiffreport examples/sitemap --recipe sitemap -o sitemap.md
-
-# Ad-hoc: just a few files with the generic recipe
-xmldiffreport a.xml b.xml c.xml -o out.md
-
-# Same diff, HTML report (a standalone page) — format also inferred from .html
-xmldiffreport examples/controlm --recipe controlm -f html -o report.html
+xmldiffreport old.xml new.xml -o report.md
 ```
 
-The report format is a **pluggable strategy** — `md` (default) and `html` ship
-today; adding another (e.g. JSON) is a single registered class. The exit code is
-`1` when at least one **conflict** is found (handy for CI), `0` otherwise.
+`report.md` lists every element that changed, **one column per file**. No options
+needed — it uses the `generic` recipe by default. Pass **as many files as you
+like**; the report just grows a column each:
 
-### Input layouts
+```bash
+xmldiffreport v1.xml v2.xml v3.xml -o report.md
+```
+
+Prefer an HTML page? Add `-f html` (or name the output `*.html`):
+
+```bash
+xmldiffreport old.xml new.xml -f html -o report.html
+```
+
+Exit code is `1` when a **conflict** is found (handy for CI), `0` otherwise.
+
+> No files handy? `git clone` the repo and try the bundled, synthetic `examples/`:
+> `xmldiffreport examples/sitemap/old/sitemap.xml examples/sitemap/new/sitemap.xml --recipe sitemap`
+
+### Sharper results: recipes
+
+The default compares any XML, but a **recipe** teaches the tool how to identify
+elements in a specific dialect — matching "the same" element by a *key* (not by
+position) and ignoring volatile attributes. Built-ins: `controlm`, `sitemap`,
+`generic`; or write your own.
+
+```bash
+xmldiffreport old.xml new.xml --recipe sitemap -o report.md
+```
+
+→ [Writing recipes](https://bilouro.github.io/xmldiffreport/guide/recipes/) ·
+[generate one from your XML with an LLM](https://bilouro.github.io/xmldiffreport/guide/recipe-from-llm/).
+
+### Comparing many files / environments
+
+Passing files directly is one option. The tool's *original* use case is spotting
+collisions when the **same unit lives in several files** — e.g. the same Control-M
+folder in `uat`, `bench` and `prod` at once. For that, point it at a folder whose
+sub-folders are environments:
+
+```bash
+xmldiffreport ./environments --recipe controlm -o report.md
+# environments/uat/*.xml, environments/bench/*.xml, environments/prod/*.xml, …
+```
 
 Mental model: a **source** is an `(environment, file)` pair; a **unit** is the
 recipe's `unit` element (e.g. a Control-M `SMART_FOLDER`); the engine compares
