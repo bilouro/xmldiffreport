@@ -1,9 +1,12 @@
 # xmldiffreport
 
+[![Docs](https://img.shields.io/badge/docs-bilouro.github.io-blue)](https://bilouro.github.io/xmldiffreport/)
 [![CI](https://github.com/bilouro/xmldiffreport/actions/workflows/ci.yml/badge.svg)](https://github.com/bilouro/xmldiffreport/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/xmldiffreport.svg)](https://pypi.org/project/xmldiffreport/)
 [![Python](https://img.shields.io/pypi/pyversions/xmldiffreport.svg)](https://pypi.org/project/xmldiffreport/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+📖 **Documentation: <https://bilouro.github.io/xmldiffreport/>** · [Português](https://bilouro.github.io/xmldiffreport/pt/)
 
 **N-way structural & semantic XML diff that produces human-readable Markdown reports — driven by per-dialect recipes.**
 
