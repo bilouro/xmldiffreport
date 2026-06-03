@@ -1,4 +1,5 @@
 """Tests for recipe validation and the scaffold/validate CLI."""
+
 from xmldiffreport.core import load_recipe, validate_recipe
 from xmldiffreport.scaffold import PLACEHOLDER, _prompt_text, main
 

@@ -8,6 +8,7 @@ Everything an installed (pip) user needs is reachable here, without the repo:
   list                    list the built-in recipe names
   schema [--path]         print the recipe JSON Schema (or its on-disk path)
 """
+
 from __future__ import annotations
 
 import argparse
@@ -29,8 +30,10 @@ def _recipes_dir():
 
 
 def _prompt_text() -> str:
-    return files("xmldiffreport").joinpath("prompts", "recipe_from_xml.md").read_text(
-        encoding="utf-8"
+    return (
+        files("xmldiffreport")
+        .joinpath("prompts", "recipe_from_xml.md")
+        .read_text(encoding="utf-8")
     )
 
 
@@ -63,9 +66,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
 
 
 def cmd_list(args: argparse.Namespace) -> int:
-    names = sorted(
-        p.name[:-5] for p in _recipes_dir().iterdir() if p.name.endswith(".toml")
-    )
+    names = sorted(p.name[:-5] for p in _recipes_dir().iterdir() if p.name.endswith(".toml"))
     for n in names:
         print(n)
     return 0
@@ -92,7 +93,9 @@ def main(argv: list[str] | None = None) -> int:
     )
     s.add_argument("xml", nargs="?", help="sample .xml file to embed (optional)")
     s.add_argument(
-        "--max-bytes", type=int, default=20000,
+        "--max-bytes",
+        type=int,
+        default=20000,
         help="truncate the embedded XML to this many bytes (default 20000)",
     )
     s.set_defaults(func=cmd_scaffold)

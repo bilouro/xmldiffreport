@@ -326,9 +326,7 @@ def validate_recipe(data: dict) -> list[str]:
         if "unordered" in defaults and not isinstance(defaults["unordered"], bool):
             problems.append("`defaults.unordered` must be a boolean")
         ia = defaults.get("ignore_attrs")
-        if ia is not None and not (
-            isinstance(ia, list) and all(isinstance(x, str) for x in ia)
-        ):
+        if ia is not None and not (isinstance(ia, list) and all(isinstance(x, str) for x in ia)):
             problems.append("`defaults.ignore_attrs` must be a list of strings")
 
     elements = data.get("elements", {})
