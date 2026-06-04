@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-06-05
+
+### Added
+- `defaults.unit` may now be a **list of tags**, not only a single tag.
+  Validation and the JSON schema accept both forms. The built-in `controlm`
+  recipe uses this to match both `<FOLDER>` and `<SMART_FOLDER>`, so exports
+  that use plain `<FOLDER>` are no longer reported as having no differences.
+
+### Changed
+- Reports label each source as `parentdir/file.xml` instead of the full (often
+  absolute) input path, expanding to more path components only when two sources
+  would otherwise collide.
+
+### Fixed
+- Actions inside a Control-M `<ON>` (e.g. `DOMAIL`, `DOOUTPUT`) are now compared
+  order-independently, and repeated same-tag actions are no longer overwritten —
+  jobs that differ only in action order are no longer reported as changed.
+- The Markdown report no longer truncates long cell values with an ellipsis,
+  which could hide the very text that differed between sources.
+
 ## [0.3.0] - 2026-06-04
 
 ### Added
