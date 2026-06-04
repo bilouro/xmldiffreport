@@ -24,7 +24,7 @@ Or install the hooks once: `pre-commit install`.
 
 1. Drop a `<name>.toml` into `src/xmldiffreport/recipes/`.
 2. Declare the natural `key` per element, `ignore_attrs`, and optionally `unit`
-   and `applied_env` — see [Writing recipes](guide/recipes.md).
+   — see [Writing recipes](guide/recipes.md).
 3. Add a small **synthetic** example under `examples/<name>/` and a test.
 
 ## Adding an output format (beyond Markdown & HTML)
@@ -53,16 +53,10 @@ class JsonRenderer(Renderer):
         payload = {
             "generated_at": report.generated_at,
             "recipe": report.recipe_name,
-            "sources": report.envs,
+            "sources": report.sources,
             "units": [
-                {
-                    "id": r["node"].ident,
-                    "tag": r["node"].tag,
-                    "classification": r["cls"],   # CONFLICT / INFO / DIFF
-                    "conflict": r["conflict"],
-                    "sources": r["node"].sources,
-                }
-                for r in report.results
+                {"id": u.ident, "tag": u.tag, "sources": u.sources}
+                for u in report.units
             ],
         }
         return json.dumps(payload, indent=2, ensure_ascii=False)
@@ -93,10 +87,10 @@ get_renderer("json").render(report)
 ```python
 def test_json_output_is_valid():
     import json
-    out = get_renderer("json").render(_report())
+    out = _report().render("json")
     data = json.loads(out)                      # must parse
     assert data["recipe"] == "controlm"
-    assert any(u["classification"] == "CONFLICT" for u in data["units"])
+    assert data["units"]                        # at least one unit differs
 ```
 
 **5. Document it** — add a line to the README/CHANGELOG and, if it deserves it, a
@@ -104,9 +98,9 @@ docs note. Keep the renderer dependency-free (standard library only).
 
 That's the whole contract: subclass `Renderer`, set `format` + `file_extension`,
 implement `render(report: DiffReport) -> str`, and `@register` it. The
-`DiffReport` you receive carries `results`, `envs`, `n_sources`, `recipe_name`,
-and `generated_at`; each result is `{"node": NodeDiff, "cls": str, "conflict": bool}`.
-See the [API reference](api/index.md) for `NodeDiff`'s shape.
+`DiffReport` you receive carries `units` (a list of `NodeDiff`), `sources` (the
+file-path labels), `recipe_name`, and `generated_at`. See the
+[API reference](api/index.md) for `NodeDiff`'s shape.
 
 ## Guidelines
 

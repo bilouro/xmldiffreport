@@ -46,8 +46,6 @@ composite of all attributes.
    id-ish / host / user / counter) in `defaults.ignore_attrs`.
 4. Mark `inline = true` on any element whose semantics are carried by its child
    elements rather than its own attributes.
-5. Leave `applied_env` as a commented TODO — it is deployment-specific and
-   cannot be inferred from the XML.
 
 ## Output
 
@@ -57,7 +55,6 @@ sample. Shape:
 
 ```toml
 name = "my-dialect"
-# applied_env = "prod"   # TODO: set if you compare across a promotion pipeline
 
 [defaults]
 unit = "RECORD"

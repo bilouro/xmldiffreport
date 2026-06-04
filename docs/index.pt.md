@@ -49,20 +49,15 @@ pip install xmldiffreport
 ```
 
 ```bash
-# Comparar patches Control-M espalhados por pastas de ambiente
-xmldiffreport examples/controlm --recipe controlm -o report.md
+# Comparar dois (ou mais) ficheiros XML — usa a recipe generic por omissão
+xmldiffreport old.xml new.xml -o report.md
 ```
 
 ```python
-from xmldiffreport import load_recipe, parse_xml, diff_sources, render
+from xmldiffreport import diff
 
-recipe = load_recipe("controlm")
-sources = [
-    ("uat",   "uat:patch-b.xml",   parse_xml("uat/patch-b.xml")),
-    ("bench", "bench:patch-a.xml", parse_xml("bench/patch-a.xml")),
-    ("prod",  "prod:hotfix-c.xml", parse_xml("prod/hotfix-c.xml")),
-]
-print(render(diff_sources(recipe, sources), ["uat", "bench", "prod"], 3, "controlm"))
+result = diff(["old.xml", "new.xml"], recipe="sitemap")   # um ficheiro, vários, ou dir(s)
+print(result.render())                                    # Markdown — ou .render("html")
 ```
 
 ## Porquê não um diff normal?

@@ -241,44 +241,58 @@ def diff_group(recipe: dict, tag: str, ident: str, nodes: dict, ignore: set[str]
 
 
 # ---------------------------------------------------------------------------
+# inputs: files and/or directories
+# ---------------------------------------------------------------------------
+def gather_files(paths) -> list[tuple[str, Path]]:
+    """Resolve files and/or directories into ``(label, path)`` sources.
+
+    A file is taken as-is; a directory is scanned recursively for ``*.xml``.
+    The label is the file path — the engine knows nothing about "environments".
+    """
+    if isinstance(paths, (str, Path)):
+        paths = [paths]
+    out: list[tuple[str, Path]] = []
+    for raw in paths:
+        p = Path(raw)
+        if p.is_dir():
+            for x in sorted(p.rglob("*.xml")):
+                out.append((str(x), x))
+        elif p.is_file():
+            out.append((str(p), p))
+    return out
+
+
+# ---------------------------------------------------------------------------
 # N-way orchestration
 # ---------------------------------------------------------------------------
 def diff_sources(recipe: dict, sources: list) -> list:
     """Diff N sources.
 
-    ``sources`` is a list of ``(env, label, root_element)``. Returns one result
-    per unit that has differences across two or more sources.
+    ``sources`` is a list of ``(label, root_element)``. Returns the list of
+    units (``NodeDiff``) that differ across two or more sources. The label is
+    just a display name (typically the file path) — no other meaning is attached.
     """
     ignore = set(recipe["defaults"]["ignore_attrs"])
     unit_tag = recipe["defaults"].get("unit")
-    applied = recipe.get("applied_env")
 
     index: dict = {}
-    for env, label, root in sources:
+    for label, root in sources:
         units = root.iter(unit_tag) if unit_tag else list(root)
         for el in units:
             if unit_tag and el.tag != unit_tag:
                 continue
             key = (el.tag, identity(recipe, el.tag, el))
-            index.setdefault(key, {})[label] = (env, el)
+            index.setdefault(key, {})[label] = el
 
-    results = []
+    out: list[NodeDiff] = []
     for (tag, ident), occ in sorted(index.items()):
         if len(occ) < 2:
             continue
-        labels = sorted(occ, key=lambda lbl: (occ[lbl][0] == applied, occ[lbl][0], lbl))
-        nodes = {lbl: occ[lbl][1] for lbl in labels}
+        nodes = {lbl: occ[lbl] for lbl in sorted(occ)}
         nd = diff_group(recipe, tag, ident, nodes, ignore)
-        if not nd.changed():
-            continue
-        if applied is None:
-            cls, conflict = "DIFF", True
-        else:
-            nonapplied = [lbl for lbl in labels if occ[lbl][0] != applied]
-            conflict = len(nonapplied) >= 2
-            cls = "CONFLICT" if conflict else "INFO"
-        results.append({"node": nd, "cls": cls, "conflict": conflict})
-    return results
+        if nd.changed():
+            out.append(nd)
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -307,12 +321,10 @@ def validate_recipe(data: dict) -> list[str]:
         return ["recipe must be a TOML table"]
 
     for k in data:
-        if k not in ("name", "applied_env", "defaults", "elements"):
+        if k not in ("name", "defaults", "elements"):
             problems.append(f"unknown top-level key: {k!r}")
     if "name" in data and not isinstance(data["name"], str):
         problems.append("`name` must be a string")
-    if "applied_env" in data and not isinstance(data["applied_env"], str):
-        problems.append("`applied_env` must be a string")
 
     defaults = data.get("defaults", {})
     if not isinstance(defaults, dict):

@@ -25,8 +25,9 @@ Initial release.
 - Recipe tooling (`xmldiffreport-recipe`): `scaffold` prints an LLM prompt that
   generates a recipe from a sample XML; `validate` checks a recipe against the
   shipped JSON Schema (`recipes/recipe.schema.json`). Dependency-free validator.
-- Conflict classification driven by an "applied" environment (e.g. `prod` →
-  INFO), including intra-environment comparison.
+- High-level API: `diff(paths, recipe=...)` accepts a file, multiple files, and/or
+  directories (scanned recursively) and returns a `DiffReport` you can `.render()`.
+  The engine is generic — no notion of "environments".
 - Synthetic example datasets (Control-M patches, sitemaps) and a config-driven
   usage harness (`usage/`).
 - MkDocs (Material) documentation, bilingual (English + Português), deployed to

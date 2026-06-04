@@ -8,7 +8,7 @@ an honest map of the landscape so you pick the right tool for the job.
 
 | Tool | Kind | Ways | Match strategy | Output | Best for |
 |---|---|---|---|---|---|
-| **xmldiffreport** | structural | **N (2+)** | declared natural key (recipe) | Markdown / HTML report | reviewing what changed across pending patches/environments |
+| **xmldiffreport** | structural | **N (2+)** | declared natural key (recipe) | Markdown / HTML report | reviewing what changed across several files/versions |
 | `diff` / `git diff` | text | 2 | line-by-line | unified diff | raw line changes on already-normalized XML |
 | [`xmldiff`](https://pypi.org/project/xmldiff/) | structural | 2 | algorithmic (heuristic) | edit script / patched XML | producing a *patch* that transforms doc A into doc B |
 | Altova DiffDog / Oxygen | structural (GUI) | 2 | algorithmic + some keys | interactive side-by-side | hands-on visual merge of two documents |
@@ -60,7 +60,7 @@ line-based and 2-way.
 - You want a **review-ready Markdown/HTML report**, not an edit script or a GUI.
 - You can describe identity declaratively with a **recipe** (a stable key per
   element) — Control-M, sitemaps, POMs, and most config/export dialects qualify.
-- You want a **CI gate**: non-zero exit on conflict.
+- You want a **CI gate**: non-zero exit when anything differs.
 - The noise of volatile attributes/reordering is hurting a plain diff.
 
 **Reach for something else when:**

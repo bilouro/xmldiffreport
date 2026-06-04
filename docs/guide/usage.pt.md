@@ -8,7 +8,8 @@ usage/               um harness guiado por config para correr nos TEUS ficheiros
 ```
 
 A ferramenta em `src/` não sabe nada das tuas pastas. A pasta `usage/` é a fina
-camada que adaptas.
+camada que adaptas — útil quando preferes guardar caminhos e opções num ficheiro
+em vez de os escrever na linha de comandos.
 
 ## Configurar
 
@@ -20,37 +21,36 @@ cp usage/config.example.toml usage/config.toml
 # usage/config.toml  (caminhos relativos a ESTE ficheiro)
 recipe = "controlm"
 report_dir = "reports"
-format = "md"            # "md" ou "html"
-# applied_env = "prod"   # opcional
+format = "md"                # ou "html"
 
-[environments]
-uat   = "/data/ctm/uat"      # ex.: onde descarregas os anexos do Jira
-bench = "/data/ctm/bench"
-prod  = "/data/ctm/prod"
+# Ficheiros e/ou diretórios a comparar (diretórios são varridos recursivamente).
+inputs = [
+    "/data/ctm/uat",
+    "/data/ctm/bench",
+    "/data/ctm/prod",
+]
 ```
 
 ## Correr
 
 ```bash
 python usage/collect.py
-# escreve usage/reports/YYYYMMDD_HH_MM.<ext>
+# escreve usage/reports/YYYYMMDD_HH_MM.md
 ```
 
-O `collect.py` recolhe todos os `*.xml` de cada pasta de ambiente, corre o diff e
+O `collect.py` recolhe todos os `*.xml` dos `inputs` listados, corre o diff e
 escreve um relatório com timestamp em `report_dir`. Código de saída `1` se houver
-conflito.
+diferenças.
 
 ## Um fluxo Control-M típico
 
 1. Cada patch (um JIRA) leva os `SMART_FOLDER` alterados como anexo XML.
-2. Descarregas os anexos para pastas por ambiente (`uat/`, `bench/`, …); `prod/`
-   tem os recentemente aplicados.
+2. Descarregas os anexos para pastas (uma por fonte — ex. `uat/`, `bench/`,
+   `prod/`) e listas essas pastas em `inputs`.
 3. Corres o `collect.py` antes de promover um patch.
-4. Lês o relatório:
-    - **⚠️ CONFLICT** — dois patches pendentes tocam no mesmo folder/job →
-      resolve antes de promover.
-    - **ℹ️ INFO** — um patch pendente sobrepõe-se a algo já em `prod` → confirma
-      que partiu do estado atual de produção.
+4. O relatório mostra cada folder que aparece em 2+ ficheiros e difere, uma coluna
+   por ficheiro. Sabes qual ficheiro é qual (cada coluna é o caminho), por isso
+   decides o que é uma colisão a bloquear e o que é esperado.
 
 ## Privacidade
 

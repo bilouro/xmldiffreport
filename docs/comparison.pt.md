@@ -9,7 +9,7 @@ ferramenta certa.
 
 | Ferramenta | Tipo | Vias | Estratégia de match | Saída | Melhor para |
 |---|---|---|---|---|---|
-| **xmldiffreport** | estrutural | **N (2+)** | chave natural declarada (recipe) | relatório Markdown / HTML | rever o que mudou entre patches/ambientes pendentes |
+| **xmldiffreport** | estrutural | **N (2+)** | chave natural declarada (recipe) | relatório Markdown / HTML | rever o que mudou entre vários ficheiros/versões |
 | `diff` / `git diff` | texto | 2 | linha-a-linha | diff unificado | mudanças de linha em XML já normalizado |
 | [`xmldiff`](https://pypi.org/project/xmldiff/) | estrutural | 2 | algorítmico (heurístico) | edit script / XML patched | produzir um *patch* que transforma A em B |
 | Altova DiffDog / Oxygen | estrutural (GUI) | 2 | algorítmico + algumas chaves | lado-a-lado interativo | merge visual manual de dois documentos |
@@ -61,7 +61,7 @@ folder/job/atributo; o git-diff do JSON/YAML continua a ser linha-a-linha e 2-wa
 - Consegues descrever a identidade de forma declarativa com uma **recipe** (uma
   chave estável por elemento) — Control-M, sitemaps, POMs e a maioria dos
   dialectos de config/export servem.
-- Queres um **gate de CI**: saída não-zero em conflito.
+- Queres um **gate de CI**: saída não-zero quando algo difere.
 - O ruído de atributos voláteis/reordenação está a estragar um diff de texto.
 
 **Recorre a outra coisa quando:**

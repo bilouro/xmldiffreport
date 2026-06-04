@@ -8,7 +8,7 @@ from ..core import NodeDiff
 from .base import DiffReport, Renderer, register
 
 _CSS = """
-:root { --conf:#c0392b; --info:#2980b9; --diff:#7f8c8d; --line:#e1e4e8; }
+:root { --line:#e1e4e8; }
 * { box-sizing: border-box; }
 body { font: 15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
        color:#24292e; max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
@@ -21,10 +21,6 @@ th, td { border:1px solid var(--line); padding:.35rem .55rem; text-align:left;
 th { background:#f6f8fa; }
 code { background:#f6f8fa; padding:.05rem .3rem; border-radius:4px;
        font-family: SFMono-Regular,Consolas,monospace; font-size:.85em; }
-.badge { display:inline-block; color:#fff; padding:.1rem .5rem; border-radius:10px;
-         font-size:.78rem; font-weight:600; }
-.badge.CONFLICT{background:var(--conf);} .badge.INFO{background:var(--info);}
-.badge.DIFF{background:var(--diff);}
 .src { color:#586069; font-size:.85rem; }
 .absent { color:#b0b0b0; }
 ul.presence { margin:.3rem 0 1rem; } .sub { margin-left:1.2rem; }
@@ -97,7 +93,7 @@ def _node(nd: NodeDiff, srcs: list[str], depth: int) -> list[str]:
 
 
 def _render(report: DiffReport) -> str:
-    results = report.results
+    units = report.units
     head = (
         '<!doctype html><html lang="en"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -108,11 +104,11 @@ def _render(report: DiffReport) -> str:
         head,
         "<h1>XML diff report</h1>",
         f'<p class="meta">Generated: {escape(report.generated_at)} · recipe: '
-        f"<code>{escape(report.recipe_name)}</code> · sources: "
-        f"{escape(', '.join(report.envs))} · {report.n_sources} file(s)</p>",
+        f"<code>{escape(report.recipe_name)}</code> · "
+        f"{len(report.sources)} file(s)</p>",
     ]
 
-    if not results:
+    if not units:
         parts.append(
             "<p>No shared unit with differences. "
             "<strong>Nothing to report.</strong></p></body></html>"
@@ -122,10 +118,9 @@ def _render(report: DiffReport) -> str:
     # summary
     parts.append(
         "<h2>Summary</h2><table><thead><tr><th>Unit</th>"
-        "<th>Classification</th><th>Sources</th><th>Changes</th></tr></thead><tbody>"
+        "<th>Sources</th><th>Changes</th></tr></thead><tbody>"
     )
-    for r in results:
-        nd = r["node"]
+    for nd in units:
         chg = []
         if nd.rows:
             chg.append(f"own Δ{len(nd.rows)}")
@@ -135,19 +130,14 @@ def _render(report: DiffReport) -> str:
             chg.append(f"~ {len(nd.child_diffs)}")
         parts.append(
             f"<tr><td><code>{escape(nd.ident)}</code> ({escape(nd.tag)})</td>"
-            f'<td><span class="badge {r["cls"]}">{r["cls"]}</span></td>'
             f"<td>{len(nd.sources)}</td><td>{escape(' · '.join(chg) or '—')}</td></tr>"
         )
     parts.append("</tbody></table>")
 
     # detail
     parts.append("<h2>Detail</h2>")
-    for r in results:
-        nd = r["node"]
-        parts.append(
-            f'<h3><span class="badge {r["cls"]}">{r["cls"]}</span> '
-            f"<code>{escape(nd.ident)}</code> ({escape(nd.tag)})</h3>"
-        )
+    for nd in units:
+        parts.append(f"<h3><code>{escape(nd.ident)}</code> ({escape(nd.tag)})</h3>")
         parts.append(
             '<p class="src">Sources: '
             + ", ".join(f"<code>{escape(s)}</code>" for s in nd.sources)

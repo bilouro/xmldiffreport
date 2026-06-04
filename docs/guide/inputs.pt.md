@@ -1,89 +1,58 @@
 # Inputs: onde estão os ficheiros e como são casados
 
-É a parte que mais se erra, por isso vamos ser precisos. Quando o modelo mental
-assenta, o resto sai sozinho.
+A ferramenta é propositadamente simples quanto à entrada: dás-lhe **ficheiros
+e/ou diretórios**. Não há conceito de "ambiente" — um ficheiro é um ficheiro.
 
 ## O modelo mental (três ideias)
 
-1. **Uma fonte é um par `(ambiente, ficheiro)`.** Cada XML a que apontas vira uma
-   fonte, com rótulo `ambiente:ficheiro` (ex. `uat:patch-b.xml`).
+1. **Cada ficheiro é uma fonte.** Cada XML a que apontas vira uma fonte, com
+   rótulo igual ao **caminho do ficheiro**.
 2. **Uma unidade é o elemento `unit` da recipe** (no Control-M, `SMART_FOLDER`). Um
    ficheiro pode conter **muitas unidades**.
 3. **A comparação é por unidade, entre todas as fontes que a contêm** — mas só
-   para unidades presentes em **2 ou mais fontes**. Uma unidade que aparece numa só
-   fonte fica de fora (não há com o quê comparar).
+   para unidades presentes em **2 ou mais fontes**. Uma unidade que aparece num só
+   ficheiro fica de fora (não há com o quê comparar).
 
 ```mermaid
 flowchart TB
-  subgraph fontes
-    A[uat:patch-b.xml] --> U1[(GLX_INGEST_DAILY)] & U2[(GLX_SUMMARY_DAILY)]
-    B[bench:patch-a.xml] --> U1 & U2b[(GLX_SUMMARY_DAILY)]
-    C[prod:hotfix-c.xml] --> U1c[(GLX_INGEST_DAILY)]
-  end
-  U1 --- X{{GLX_INGEST_DAILY em 3 fontes → comparado N-way}}
+  A[a.xml] --> U1[(FOLDER_X)] & U2[(FOLDER_Y)]
+  B[b.xml] --> U1 & U3[(FOLDER_Z)]
+  C[c.xml] --> U1
+  U1 --- X{{FOLDER_X em 3 ficheiros → comparado N-way}}
 ```
 
 ## Os layouts que podes usar
 
-Passas **ficheiros e/ou pastas** como argumentos. Há quatro formas práticas.
-
-### 1. Uma pasta-pai com subpastas de ambiente  ← o caso comum
-
-```text
-environments/
-├── test/   patch-d.xml
-├── uat/    patch-b.xml   patch-e.xml
-├── bench/  patch-a.xml   patch-x.xml
-└── prod/   hotfix-c.xml
-```
+### 1. Dois (ou mais) ficheiros
 
 ```bash
-xmldiffreport environments --recipe controlm -o report.md
+xmldiffreport old.xml new.xml -o report.md
+xmldiffreport v1.xml v2.xml v3.xml -o report.md       # quantos quiseres
 ```
 
-Cada **subpasta é um ambiente**; cada `*.xml` lá dentro é uma fonte. É o que
-queres quando descarregas os patches de cada ambiente para a sua pasta (ex. anexos
-do Jira por ambiente).
-
-### 2. Uma só pasta de `.xml`
-
-```text
-uat/
-├── patch-b.xml
-└── patch-e.xml
-```
+### 2. Um diretório (varrido recursivamente)
 
 ```bash
-xmldiffreport uat --recipe controlm
+xmldiffreport ./dump -o report.md      # cada *.xml sob ./dump vira uma fonte
 ```
 
-O **nome da pasta vira o ambiente** (`uat`). Útil para comparar os ficheiros
-*dentro* de um ambiente.
-
-### 3. Ficheiros explícitos
+### 3. Mistura de ficheiros e diretórios
 
 ```bash
-xmldiffreport a.xml b.xml c.xml --recipe controlm
+xmldiffreport baseline.xml ./candidatos -o report.md
 ```
 
-Cada ficheiro é uma fonte; o rótulo de ambiente é o nome da pasta-mãe. Bom para
-comparações pontuais.
+### 4. A partir de um config (o harness de uso)
 
-### 4. Locais dispersos → o config de uso
-
-Quando os ambientes **não** estão sob uma pasta-pai comum (ex. pastas de download
-diferentes), usa o [harness de uso](usage.md): um `config.toml` mapeia cada
-ambiente a **qualquer caminho**.
+Quando preferes guardar os caminhos e as opções num ficheiro, usa o
+[harness de uso](usage.md): um `config.toml` com uma lista `inputs` (ficheiros
+e/ou dirs).
 
 ```toml
 # usage/config.toml
 recipe = "controlm"
 report_dir = "reports"
-
-[environments]
-uat   = "/data/jira/uat-downloads"
-bench = "/mnt/share/bench"
-prod  = "/var/ctm/prod-applied"
+inputs = ["/data/ctm/uat", "/data/ctm/bench", "/data/ctm/prod"]
 ```
 
 ```bash
@@ -92,23 +61,18 @@ python usage/collect.py
 
 ## Como funciona a descoberta (as regras exatas)
 
-- Argumento que é pasta: se as subpastas contêm `*.xml`, **cada subpasta é um
-  ambiente**; senão a própria pasta é um ambiente.
-- Dentro de um ambiente, **todos os `*.xml` são lidos**, ordenados por nome. Cada
-  um vira uma fonte `ambiente:ficheiro`.
-- **Dois ficheiros no mesmo ambiente também são comparados** — se
-  `uat/patch-b.xml` e `uat/patch-e.xml` contiverem ambos o folder `X`, é uma
-  comparação intra-ambiente.
+- Um argumento que é **ficheiro** é usado tal e qual.
+- Um argumento que é **diretório** é varrido **recursivamente** por `*.xml`; cada
+  resultado é uma fonte. Passa vários diretórios e todos contribuem.
+- Cada fonte é rotulada pelo seu **caminho** — é o cabeçalho da coluna no
+  relatório. (Se importa qual ficheiro é produção, dá-lhe um nome que o diga.)
 - Um ficheiro pode ter **muitas unidades**; o motor indexa-as todas.
 - Só unidades em **≥ 2 fontes** são comparadas. Conteúdo idêntico entre fontes não
   gera linhas (não é diferença).
-- O ambiente chamado **`prod`** (configurável via `applied_env` da recipe ou
-  `--applied-env`) é o *já aplicado*: sobreposições com ele dão **INFO**, não
-  conflito.
 
 ## Exemplo completo (ponta a ponta)
 
-Com o dataset sintético em `examples/controlm/`:
+O dataset sintético em `examples/controlm/` é só uma árvore de ficheiros XML:
 
 ```text
 examples/controlm/
@@ -124,31 +88,24 @@ examples/controlm/
 xmldiffreport examples/controlm --recipe controlm -o report.md
 ```
 
-→ `4 ambientes · 6 ficheiros · 5 unidades com diferenças · 4 conflitos`. O resumo
-do relatório:
+→ `5 unit(s) with differences across 6 file(s)`. O resumo do relatório:
 
-| Unidade | Classificação | Fontes | Porquê |
-|---|---|---|---|
-| `GLX_INGEST_DAILY` | ⚠️ CONFLICT | 3 | em uat **e** bench (ambos pendentes) — e também prod |
-| `GLX_SUMMARY_DAILY` | ⚠️ CONFLICT | 2 | em uat e bench, diferem ao nível do folder |
-| `GLX_LEDGER_DAILY` | ⚠️ CONFLICT | 2 | em uat e bench, folder + um job em comum |
-| `GLX_PRICING_DAILY` | ℹ️ INFO | 2 | o único lado pendente é bench; o outro é **prod** |
-| `GLX_RISK_SCAN` | ⚠️ CONFLICT | 2 | `uat:patch-e` ↔ `bench:patch-x`, uma INCOND a mais |
+| Unidade | Em quantos ficheiros | Porquê |
+|---|---|---|
+| `GLX_INGEST_DAILY` | 3 | em `bench/patch-a`, `uat/patch-b`, `prod/hotfix-c` e difere |
+| `GLX_SUMMARY_DAILY` | 2 | em `uat/patch-b` e `bench/patch-a`, diferem ao nível do folder |
+| `GLX_LEDGER_DAILY` | 2 | em `uat/patch-b` e `bench/patch-a`, folder + um job em comum |
+| `GLX_PRICING_DAILY` | 2 | em `bench/patch-a` e `prod/hotfix-c`, um job difere |
+| `GLX_RISK_SCAN` | 2 | em `uat/patch-e` e `bench/patch-x`, uma INCOND a mais |
 
-`GLX_NIGHTLY_START` e `GLX_DISK_CHECK` só existem em `test` → fonte única → não são
-reportados.
+`GLX_NIGHTLY_START` e `GLX_DISK_CHECK` só existem num ficheiro → não são reportados.
 
 ## Armadilhas (lê isto se um resultado te surpreender)
 
-- **“O meu folder não aparece.”** Está só numa fonte. Precisas da *mesma* unidade
-  em ≥ 2 fontes para haver comparação.
-- **“Duas cópias idênticas, sem conflito.”** Correto — conteúdo idêntico (ignorando
-  voláteis) não é diferença.
-- **“O mesmo folder duas vezes num ambiente.”** É um conflito intra-ambiente e *é*
-  reportado (dois ficheiros em `uat/` a tocar no folder `X`).
-- **“Tudo vs prod dá INFO.”** É de propósito: `prod` é o baseline aplicado. Muda o
-  ambiente aplicado com `--applied-env NOME` (ou `applied_env` na recipe) se o teu
-  pipeline lhe chamar outra coisa.
+- **“A minha unidade não aparece.”** Está só num ficheiro. Precisas da *mesma*
+  unidade em ≥ 2 ficheiros para haver comparação.
+- **“Duas cópias idênticas, nada reportado.”** Correto — conteúdo idêntico
+  (ignorando voláteis) não é diferença.
 - **Ficheiros grandes:** cada ficheiro é parseado em memória; bom até dezenas de
   MB. Ver **Performance & escala** abaixo.
 
@@ -163,7 +120,7 @@ Medido em dados sintéticos (Apple silicon, Python 3.14):
 
 | Entrada | Folders | Jobs | Tempo | RSS máx |
 |---|---|---|---|---|
-| 17 ficheiros, sobreposição esparsa | 438 | ~1.3k | 0,05 s | 26 MB |
+| 17 ficheiros, pouca sobreposição | 438 | ~1.3k | 0,05 s | 26 MB |
 | 2 × 2,8 MB | 16 000 | 80 000 | 0,35 s | 75 MB |
 | 2 × 7,3 MB | 40 000 | 200 000 | 0,83 s | 153 MB |
 
@@ -174,10 +131,8 @@ Regras de bolso:
   árvores ficam em memória ao mesmo tempo para achar as sobreposições. Soma entre
   *todos* os ficheiros, não só o maior. Confortável até **dezenas de MB**; não
   desenhado para gigabytes.
-- **Largura N-way:** uma unidade em *K* fontes gera uma tabela de *K* colunas —
-  só as fontes que a contêm, nunca as N. Tabelas muito largas (muitas fontes numa
-  unidade) leem-se melhor no formato **HTML**.
-- **Muitos ficheiros, sobreposição esparsa** (o caso comum): todos os ficheiros
-  são parseados, mas só as unidades em ≥ 2 fontes são reportadas — as restantes
-  são ignoradas barato. 17 ficheiros com só 3 nomes de folder em comum → relatório
-  de 3 linhas.
+- **Largura N-way:** uma unidade em *K* ficheiros gera uma tabela de *K* colunas —
+  só os ficheiros que a contêm. Tabelas muito largas leem-se melhor em **HTML**.
+- **Muitos ficheiros, pouca sobreposição:** todos são parseados, mas só as
+  unidades em ≥ 2 ficheiros são reportadas — as restantes são ignoradas barato. 17
+  ficheiros com só 3 nomes de unidade em comum → relatório de 3 linhas.

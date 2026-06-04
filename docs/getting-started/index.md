@@ -19,7 +19,7 @@ xmldiffreport old.xml new.xml -o report.md
 
 Open `report.md`: a **summary table** of every element that differs, then an
 **N-way detail** table — one column per file. Pass more files for more columns.
-The exit code is **`1` when a conflict is found** (useful in CI), `0` otherwise.
+The exit code is **`1` when a difference is found** (useful in CI), `0` otherwise.
 
 !!! tip "Try it with zero setup"
     Cloned the repo? Run it on the bundled synthetic examples:
@@ -29,32 +29,32 @@ The exit code is **`1` when a conflict is found** (useful in CI), `0` otherwise.
     ```
     The `examples/` folder ships **in the repo**, not in the pip package.
 
-## Input layouts
+## Inputs: files and/or directories
 
-`xmldiffreport` accepts files and/or folders as positional arguments:
-
-=== "Environments in sub-folders"
-
-    ```bash
-    xmldiffreport ./environments --recipe controlm -o report.md
-    # environments/uat/*.xml, environments/bench/*.xml, ...
-    ```
-
-    Each sub-folder is an **environment**; each `(environment, file)` is a
-    **source**. Two files in the *same* environment are also compared.
-
-=== "A single folder"
-
-    ```bash
-    xmldiffreport ./uat --recipe controlm
-    # the folder name ("uat") becomes the environment
-    ```
+`xmldiffreport` accepts files and/or directories as positional arguments:
 
 === "Explicit files"
 
     ```bash
     xmldiffreport a.xml b.xml c.xml --recipe controlm
     ```
+
+=== "A directory (recursive)"
+
+    ```bash
+    xmldiffreport ./dump --recipe controlm
+    # every *.xml under ./dump becomes a source, labelled by its path
+    ```
+
+=== "A mix"
+
+    ```bash
+    xmldiffreport baseline.xml ./candidates --recipe controlm
+    ```
+
+Each file is a **source**; a **unit** (e.g. a Control-M `SMART_FOLDER`) is
+reported when it appears in **2+ files** and differs. Full guide:
+[Inputs & file layout](../guide/inputs.md).
 
 ## Choosing a recipe
 
@@ -70,13 +70,12 @@ You can also pass a path to your own `.toml` — see
 ## CLI options
 
 ```text
-xmldiffreport [paths...] [-r RECIPE] [-o OUT] [-f FORMAT] [--applied-env ENV]
+xmldiffreport [paths...] [-r RECIPE] [-o OUT] [-f FORMAT]
 
-  paths             .xml files or folders (environments in sub-folders)
+  paths             .xml files and/or directories (directories scanned recursively)
   -r, --recipe      built-in recipe name or path to a .toml (default: generic)
   -o, --out         output file (default: reports/YYYYMMDD_HH_MM.<ext>)
   -f, --format      output format: md (default) or html
-  --applied-env     override the recipe's "already applied" environment (→ INFO)
 ```
 
 ## Output formats

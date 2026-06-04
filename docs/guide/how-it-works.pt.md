@@ -18,8 +18,7 @@ flowchart LR
   B --> C{unidade em ≥2 fontes?}
   C -- não --> X[ignorar]
   C -- sim --> D[diff recursivo por nó]
-  D --> E[classificar CONFLICT / INFO]
-  E --> F[gerar Markdown]
+  D --> F[gerar relatório]
 ```
 
 ## Unidades e recursão
@@ -50,17 +49,13 @@ Atributos que mudam a cada export sem significado funcional — `VERSION`,
 `CREATION_TIME`, `JOBISN`, `LAST_UPLOAD`, … — estão na lista `ignore_attrs` da
 recipe e nunca geram linha. É isto que torna o diff *semântico* em vez de ruidoso.
 
-## Classificação de conflitos
+## O que é reportado
 
-- Unidade presente em **≥2 fontes não-aplicadas**, com diferenças → **⚠️ CONFLICT**
-  (dois patches pendentes colidem).
-- Unidade cujo único par é o ambiente **aplicado** (ex. `prod`) → **ℹ️ INFO** —
-  altera algo já em produção; confirma o rebase, mas não é uma colisão
-  patch-vs-patch.
-- Sem `applied_env`, qualquer diferença é reportada como **DIFF**.
-
-O ambiente "aplicado" é definido na recipe (`applied_env = "prod"`) e pode ser
-sobreposto com `--applied-env`.
+O motor reporta **diferenças** — cada unidade presente em 2+ fontes que não seja
+idêntica. Não entra no teu domínio: **não** classifica essas diferenças (ex.
+"conflito" vs "informativo"). Se essa distinção importa no teu fluxo, deriva-a tu
+a partir do resultado — sabes qual ficheiro é qual (o relatório rotula cada um
+pelo caminho).
 
 ## Namespaces e texto
 

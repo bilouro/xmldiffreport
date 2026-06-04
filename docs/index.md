@@ -52,20 +52,15 @@ pip install xmldiffreport
 xmldiffreport old.xml new.xml -o report.md
 ```
 
-Working with a known dialect (Control-M, sitemaps, …)? Add `--recipe`. Comparing
-files organized by environment (`uat/`, `bench/`, `prod/`)? See
+Working with a known dialect (Control-M, sitemaps, …)? Add `--recipe`. Pass
+**directories** to compare every `*.xml` inside them. See
 [Getting Started](getting-started/index.md) and [Inputs & file layout](guide/inputs.md).
 
 ```python
-from xmldiffreport import load_recipe, parse_xml, diff_sources, render
+from xmldiffreport import diff
 
-recipe = load_recipe("controlm")
-sources = [
-    ("uat",   "uat:patch-b.xml",   parse_xml("uat/patch-b.xml")),
-    ("bench", "bench:patch-a.xml", parse_xml("bench/patch-a.xml")),
-    ("prod",  "prod:hotfix-c.xml", parse_xml("prod/hotfix-c.xml")),
-]
-print(render(diff_sources(recipe, sources), ["uat", "bench", "prod"], 3, "controlm"))
+result = diff(["old.xml", "new.xml"], recipe="sitemap")   # a file, files, or dir(s)
+print(result.render())                                    # Markdown — or .render("html")
 ```
 
 ## Why not a plain diff?

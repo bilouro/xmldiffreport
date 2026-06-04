@@ -5,8 +5,6 @@ from __future__ import annotations
 from ..core import NodeDiff
 from .base import DiffReport, Renderer, register
 
-EMOJI = {"CONFLICT": "⚠️", "INFO": "ℹ️", "DIFF": "🔁"}
-
 
 def md_cell(v: str) -> str:
     v = " ".join(str(v).split()).replace("|", "\\|")
@@ -61,26 +59,20 @@ def _render_node(nd: NodeDiff, srcs: list[str], depth: int) -> list[str]:
 
 
 def _render(report: DiffReport) -> str:
-    results, envs = report.results, report.envs
+    units = report.units
     lines = [
         "# XML diff report",
         "",
         f"_Generated: {report.generated_at} · recipe: `{report.recipe_name}` · "
-        f"sources: {', '.join(envs)} · {report.n_sources} file(s)_",
+        f"{len(report.sources)} file(s)_",
         "",
     ]
-    if not results:
+    if not units:
         lines += ["No shared unit with differences. **Nothing to report.**", ""]
         return "\n".join(lines)
 
-    lines += [
-        "## Summary",
-        "",
-        "| Unit | Classification | Sources | Changes |",
-        "|---|---|---|---|",
-    ]
-    for r in results:
-        nd = r["node"]
+    lines += ["## Summary", "", "| Unit | Sources | Changes |", "|---|---|---|"]
+    for nd in units:
         parts = []
         if nd.rows:
             parts.append(f"own Δ{len(nd.rows)}")
@@ -88,18 +80,15 @@ def _render(report: DiffReport) -> str:
             parts.append(f"± {len(nd.presence_children)}")
         if nd.child_diffs:
             parts.append(f"~ {len(nd.child_diffs)}")
-        cls = f"{EMOJI.get(r['cls'], '')} {r['cls']}"
         lines.append(
-            f"| `{nd.ident}` ({nd.tag}) | {cls} | {len(nd.sources)} | {' · '.join(parts) or '—'} |"
+            f"| `{nd.ident}` ({nd.tag}) | {len(nd.sources)} | {' · '.join(parts) or '—'} |"
         )
     lines.append("")
 
     lines += ["## Detail", ""]
-    for r in results:
-        nd = r["node"]
-        cls = f"{EMOJI.get(r['cls'], '')} {r['cls']}"
+    for nd in units:
         lines += [
-            f"### {cls} · `{nd.ident}` ({nd.tag})",
+            f"### `{nd.ident}` ({nd.tag})",
             "",
             "Sources: " + ", ".join(f"`{s}`" for s in nd.sources),
             "",

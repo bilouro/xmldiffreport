@@ -1,6 +1,5 @@
 # Recipe for BMC Control-M exports (DEFTABLE → SMART_FOLDER → JOB → ...)
 name = "controlm"
-applied_env = "prod"          # the "already applied" env; pairs with it → INFO
 
 [defaults]
 unit = "SMART_FOLDER"          # unit of comparison (the folder)

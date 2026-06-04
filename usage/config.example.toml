@@ -5,17 +5,13 @@
 #   python usage/collect.py
 #
 # By default it points at the synthetic examples, so it runs out of the box.
-# In production, point each environment at the folder holding its XMLs
-# (e.g. where you download that environment's Jira attachments).
 
 recipe = "controlm"          # built-in recipe or a path to a .toml
 report_dir = "reports"       # where to write reports (YYYYMMDD_HH_MM.<ext>)
 format = "md"                # "md" or "html"
-# applied_env = "prod"       # optional: override the recipe's "already applied" env
 
-[environments]
-# environment = folder with that environment's .xml files
-test  = "../examples/controlm/test"
-uat   = "../examples/controlm/uat"
-bench = "../examples/controlm/bench"
-prod  = "../examples/controlm/prod"
+# Files and/or directories to compare (directories are scanned recursively).
+# Add as many as you like — every *.xml found becomes one source.
+inputs = [
+    "../examples/controlm",
+]

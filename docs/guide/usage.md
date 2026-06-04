@@ -8,7 +8,8 @@ usage/               a config-driven harness to run it on YOUR files
 ```
 
 The tool in `src/` knows nothing about your folders. The `usage/` folder is the
-thin layer you adapt.
+thin layer you adapt — handy when you'd rather keep paths and output settings in
+one file than type them on the command line.
 
 ## Configure
 
@@ -20,12 +21,14 @@ cp usage/config.example.toml usage/config.toml
 # usage/config.toml  (paths are relative to this file)
 recipe = "controlm"
 report_dir = "reports"
-# applied_env = "prod"   # optional override
+format = "md"                # or "html"
 
-[environments]
-uat   = "/data/ctm/uat"      # e.g. where you download the Jira attachments
-bench = "/data/ctm/bench"
-prod  = "/data/ctm/prod"
+# Files and/or directories to compare (directories are scanned recursively).
+inputs = [
+    "/data/ctm/uat",
+    "/data/ctm/bench",
+    "/data/ctm/prod",
+]
 ```
 
 ## Run
@@ -35,20 +38,19 @@ python usage/collect.py
 # writes usage/reports/YYYYMMDD_HH_MM.md
 ```
 
-`collect.py` gathers every `*.xml` under each environment folder, runs the diff,
-and writes a timestamped report to `report_dir`. Exit code `1` if any conflict.
+`collect.py` collects every `*.xml` across the listed `inputs`, runs the diff,
+and writes a timestamped report to `report_dir`. Exit code `1` if anything
+differs.
 
 ## A typical Control-M workflow
 
 1. Each patch (a JIRA) carries the changed `SMART_FOLDER`s as an XML attachment.
-2. Download the attachments into per-environment folders (`uat/`, `bench/`, …);
-   `prod/` holds the recently-applied ones.
+2. Download the attachments into folders (one per source — e.g. `uat/`, `bench/`,
+   `prod/`), and list those folders in `inputs`.
 3. Run `collect.py` before promoting a patch.
-4. Read the report:
-    - **⚠️ CONFLICT** — two pending patches touch the same folder/job → resolve
-      before promoting.
-    - **ℹ️ INFO** — a pending patch overlaps something already in `prod` → confirm
-      it was rebased on the current production state.
+4. The report shows every folder that appears in 2+ files and differs, one column
+   per file. You know which file is which (each column is the file path), so you
+   decide what's a collision worth blocking and what's expected.
 
 ## Privacy
 

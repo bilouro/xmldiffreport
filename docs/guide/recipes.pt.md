@@ -12,7 +12,6 @@ aqui.
 
 ```toml
 name = "controlm"
-applied_env = "prod"            # pares que envolvem este ambiente são INFO, não conflito
 
 [defaults]
 unit = "SMART_FOLDER"           # a unidade de comparação (default: filhos da raiz)
@@ -82,8 +81,8 @@ aparece numa só linha em vez de uma sub-secção encaixada.
 === "controlm"
 
     Exports BMC Control-M: `DEFTABLE → SMART_FOLDER → JOB → INCOND / OUTCOND /
-    QUANTITATIVE / CONTROL / ON`. Unit = `SMART_FOLDER`, `applied_env = "prod"`,
-    e uma lista `ignore_attrs` ampla para metadados de versão/criação.
+    QUANTITATIVE / CONTROL / ON`. Unit = `SMART_FOLDER`, com uma lista
+    `ignore_attrs` ampla para metadados de versão/criação.
 
 === "sitemap"
 

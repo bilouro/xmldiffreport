@@ -18,8 +18,7 @@ flowchart LR
   B --> C{unit in ≥2 sources?}
   C -- no --> X[skip]
   C -- yes --> D[recursive diff per node]
-  D --> E[classify CONFLICT / INFO]
-  E --> F[render Markdown]
+  D --> F[render report]
 ```
 
 ## Units and recursion
@@ -51,17 +50,13 @@ Attributes that change on every export without functional meaning — `VERSION`,
 `ignore_attrs` and never produce a row. This is what makes the diff *semantic*
 instead of noisy.
 
-## Conflict classification
+## What gets reported
 
-- A unit present in **≥2 non-applied** sources, with differences → **⚠️ CONFLICT**
-  (two pending patches collide).
-- A unit whose only counterpart is the **applied** environment (e.g. `prod`) →
-  **ℹ️ INFO** — it changes something already live; verify your rebase, but it is
-  not a patch-vs-patch collision.
-- With no `applied_env`, every difference is reported as a plain **DIFF**.
-
-The "applied" environment is set by the recipe (`applied_env = "prod"`) and can
-be overridden with `--applied-env`.
+The engine reports **differences** — every unit present in 2+ sources that isn't
+identical. It deliberately stays out of your domain: it does **not** classify
+those differences (e.g. "conflict" vs "informational"). If that distinction
+matters to your workflow, derive it yourself from the result — you know which
+file is which (the report labels each by its path).
 
 ## Namespaces & text
 

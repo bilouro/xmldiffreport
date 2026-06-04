@@ -35,8 +35,6 @@ xmldiffreport-recipe scaffold
 - `defaults.ignore_attrs` — volatile attributes (versions, timestamps, ids,
   user/host, counters).
 - `inline = true` — elements whose meaning lives in their children.
-- `applied_env` — left as a commented TODO (it is deployment-specific and cannot
-  be inferred from the XML).
 
 The model is told to output **only** a TOML recipe and never to invent attributes
 that are not in the sample.
@@ -65,7 +63,7 @@ xmldiffreport-recipe list            # list the built-in recipe names
 ## Then use it
 
 ```bash
-xmldiffreport ./environments --recipe ./my-dialect.toml -o report.md
+xmldiffreport ./your-data --recipe ./my-dialect.toml -o report.md
 ```
 
 If it works well, consider contributing it as a built-in recipe — see

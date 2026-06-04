@@ -1,29 +1,21 @@
-"""Tests for the renderer strategy/factory."""
+"""Tests for the renderer strategy/factory and the high-level API."""
 
 from pathlib import Path
 
 import pytest
 
-from xmldiffreport.cli import gather_sources
-from xmldiffreport.core import diff_sources, load_recipe, parse_xml
-from xmldiffreport.report import DiffReport, get_renderer, list_formats, render
+from xmldiffreport import diff
+from xmldiffreport.report import get_renderer, list_formats
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def _report():
-    recipe = load_recipe("controlm")
-    sources = [
-        (e, lbl, parse_xml(p))
-        for e, lbl, p in gather_sources([str(ROOT / "examples" / "controlm")])
-    ]
-    results = diff_sources(recipe, sources)
-    envs = sorted({e for e, _, _ in sources})
-    return DiffReport(results, envs, len(sources), "controlm")
+    return diff(str(ROOT / "examples" / "controlm"), recipe="controlm")
 
 
 def test_formats_registered():
-    assert set(list_formats()) >= {"md", "html"}
+    assert {"md", "html"} <= set(list_formats())
 
 
 def test_extensions():
@@ -36,16 +28,21 @@ def test_unknown_format_raises():
         get_renderer("does-not-exist")
 
 
+def test_diffreport_is_truthy_and_has_units():
+    r = _report()
+    assert bool(r) is True
+    assert len(r.units) == 5
+
+
 def test_markdown_output():
-    out = render(_report().results, ["uat", "bench", "prod"], 6, "controlm", "md")
+    out = _report().render("md")
     assert out.startswith("# XML diff report")
     assert "GLX_INGEST_LOAD" in out
 
 
 def test_html_output_is_standalone_and_escaped():
-    out = get_renderer("html").render(_report())
+    out = _report().render("html")
     assert out.startswith("<!doctype html>") and out.rstrip().endswith("</html>")
     assert "<table" in out and "GLX_INGEST_LOAD" in out
-    assert 'class="badge CONFLICT"' in out
     # the pipe in the ON "NOTOK|RERUN" key must not break anything (HTML escapes)
     assert "NOTOK|RERUN" in out

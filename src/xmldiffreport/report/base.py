@@ -22,13 +22,24 @@ from typing import ClassVar
 
 @dataclass
 class DiffReport:
-    """Everything a renderer needs to produce an output document."""
+    """The result of a diff and everything a renderer needs to format it.
 
-    results: list
-    envs: list[str]
-    n_sources: int
+    ``units`` are the ``NodeDiff`` objects that differ; ``sources`` are the
+    labels (file paths) that were compared.
+    """
+
+    units: list
+    sources: list[str]
     recipe_name: str
     generated_at: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M"))
+
+    def __bool__(self) -> bool:
+        """True if any unit differs (handy for exit codes)."""
+        return bool(self.units)
+
+    def render(self, fmt: str = "md") -> str:
+        """Render this report in the given format (default Markdown)."""
+        return get_renderer(fmt).render(self)
 
 
 class Renderer(ABC):

@@ -35,8 +35,6 @@ xmldiffreport-recipe scaffold
 - `defaults.ignore_attrs` — atributos voláteis (versões, timestamps, ids,
   utilizador/host, contadores).
 - `inline = true` — elementos cujo significado está nos filhos.
-- `applied_env` — deixado como TODO comentado (é específico do pipeline e não se
-  deduz do XML).
 
 O modelo é instruído a devolver **apenas** uma recipe TOML e a nunca inventar
 atributos que não estejam na amostra.
@@ -66,7 +64,7 @@ xmldiffreport-recipe list            # lista as recipes embutidas
 ## Depois é só usar
 
 ```bash
-xmldiffreport ./environments --recipe ./my-dialect.toml -o report.md
+xmldiffreport ./os-teus-dados --recipe ./my-dialect.toml -o report.md
 ```
 
 Se funcionar bem, considera contribuí-la como recipe embutida — ver

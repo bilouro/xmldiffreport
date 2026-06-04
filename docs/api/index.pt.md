@@ -1,32 +1,38 @@
 # Referência API
 
-O `xmldiffreport` é uma biblioteca pequena e tipada. A superfície pública é
-reexportada a partir do package de topo:
+O `xmldiffreport` é uma biblioteca pequena e tipada. O ponto de entrada de alto
+nível é o `diff`:
 
 ```python
-from xmldiffreport import load_recipe, parse_xml, diff_sources, render
+from xmldiffreport import diff
+
+result = diff(["old.xml", "new.xml"], recipe="sitemap")   # um ficheiro, vários, ou dir(s)
+print(result.render())          # Markdown — ou result.render("html")
+result.units                    # list[NodeDiff] — o que difere
+bool(result)                    # True se algo difere (útil para exit codes)
 ```
 
-Para escolher o formato de saída programaticamente, usa a factory de renderers:
+Peças de baixo nível também são reexportadas: `load_recipe`, `parse_xml`,
+`gather_files`, `diff_sources`, `validate_recipe`. Para escolher o formato pelo
+nome, usa a factory `get_renderer` / `list_formats`.
 
-```python
-from xmldiffreport.report import get_renderer, list_formats
+## Alto nível
 
-list_formats()                      # ['html', 'md']
-html = get_renderer("html").render(report)
-```
+::: xmldiffreport.diff
 
 ## Motor
 
 ::: xmldiffreport.core
     options:
       members:
+        - gather_files
         - load_recipe
         - parse_xml
         - identity
         - value_attrs
         - diff_group
         - diff_sources
+        - validate_recipe
         - NodeDiff
 
 ## Relatório

@@ -7,10 +7,6 @@
   "additionalProperties": false,
   "properties": {
     "name": { "type": "string" },
-    "applied_env": {
-      "type": "string",
-      "description": "Name of the 'already applied' environment; pairs involving it are classified INFO instead of CONFLICT."
-    },
     "defaults": {
       "type": "object",
       "additionalProperties": false,

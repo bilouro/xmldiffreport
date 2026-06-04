@@ -11,7 +11,6 @@ dialect. The engine stays the same; everything dialect-specific lives here.
 
 ```toml
 name = "controlm"
-applied_env = "prod"            # pairs involving this env are INFO, not conflicts
 
 [defaults]
 unit = "SMART_FOLDER"           # the unit of comparison (default: root children)
@@ -81,8 +80,8 @@ removed”* shows up as a single row instead of a nested sub-section.
 === "controlm"
 
     BMC Control-M exports: `DEFTABLE → SMART_FOLDER → JOB → INCOND / OUTCOND /
-    QUANTITATIVE / CONTROL / ON`. Unit = `SMART_FOLDER`, `applied_env = "prod"`,
-    a broad `ignore_attrs` list for version/creation metadata.
+    QUANTITATIVE / CONTROL / ON`. Unit = `SMART_FOLDER`, with a broad
+    `ignore_attrs` list for version/creation metadata.
 
 === "sitemap"
 

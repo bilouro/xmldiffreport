@@ -24,7 +24,7 @@ Ou instala os hooks uma vez: `pre-commit install`.
 
 1. Coloca um `<nome>.toml` em `src/xmldiffreport/recipes/`.
 2. Declara a `key` natural por elemento, `ignore_attrs` e, opcionalmente, `unit`
-   e `applied_env` — ver [Escrever recipes](guide/recipes.md).
+   — ver [Escrever recipes](guide/recipes.md).
 3. Acrescenta um pequeno exemplo **sintético** em `examples/<nome>/` e um teste.
 
 ## Adicionar um formato de saída (além de Markdown e HTML)
@@ -53,16 +53,10 @@ class JsonRenderer(Renderer):
         payload = {
             "generated_at": report.generated_at,
             "recipe": report.recipe_name,
-            "sources": report.envs,
+            "sources": report.sources,
             "units": [
-                {
-                    "id": r["node"].ident,
-                    "tag": r["node"].tag,
-                    "classification": r["cls"],   # CONFLICT / INFO / DIFF
-                    "conflict": r["conflict"],
-                    "sources": r["node"].sources,
-                }
-                for r in report.results
+                {"id": u.ident, "tag": u.tag, "sources": u.sources}
+                for u in report.units
             ],
         }
         return json.dumps(payload, indent=2, ensure_ascii=False)
@@ -93,10 +87,10 @@ get_renderer("json").render(report)
 ```python
 def test_json_output_is_valid():
     import json
-    out = get_renderer("json").render(_report())
+    out = _report().render("json")
     data = json.loads(out)                      # tem de fazer parse
     assert data["recipe"] == "controlm"
-    assert any(u["classification"] == "CONFLICT" for u in data["units"])
+    assert data["units"]                        # pelo menos uma unidade difere
 ```
 
 **5. Documenta** — uma linha no README/CHANGELOG e, se justificar, uma nota nas
@@ -104,8 +98,8 @@ docs. Mantém o renderer sem dependências (só biblioteca-padrão).
 
 É todo o contrato: herda de `Renderer`, define `format` + `file_extension`,
 implementa `render(report: DiffReport) -> str`, e `@register`. O `DiffReport`
-traz `results`, `envs`, `n_sources`, `recipe_name` e `generated_at`; cada
-resultado é `{"node": NodeDiff, "cls": str, "conflict": bool}`. Ver a
+traz `units` (uma lista de `NodeDiff`), `sources` (os rótulos = caminhos),
+`recipe_name` e `generated_at`. Ver a
 [referência API](api/index.md) para a forma do `NodeDiff`.
 
 ## Diretrizes

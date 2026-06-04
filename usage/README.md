@@ -1,13 +1,12 @@
 # usage/ — running xmldiffreport on your own files
 
 This folder is **not** part of the published package. It's a thin, config-driven
-harness that shows how to point the (reusable) tool at *your* environments and
-collect a report — keeping the engine in `src/` generic.
+wrapper that runs the tool on *your* inputs and writes a report — so you can keep
+your paths and output settings in one place.
 
 ## Quick start
 
 ```bash
-# from the repo root, with the package importable (pip install -e . or dev mode)
 cp usage/config.example.toml usage/config.toml
 python usage/collect.py
 ```
@@ -17,28 +16,29 @@ immediately and writes a report to `usage/reports/`.
 
 ## Point it at your data
 
-Edit `usage/config.toml` and map each environment to the folder that holds its
-XML patches (for example, the directory where you download the Jira attachments
-for that environment):
+Edit `usage/config.toml`:
 
 ```toml
 recipe = "controlm"
 report_dir = "reports"
+format = "md"            # or "html"
 
-[environments]
-uat   = "/data/ctm/uat"
-bench = "/data/ctm/bench"
-prod  = "/data/ctm/prod"
+# Files and/or directories (directories are scanned recursively for *.xml).
+inputs = [
+    "/data/ctm/uat",
+    "/data/ctm/bench",
+    "/data/ctm/prod",
+]
 ```
 
-- Each `(environment, file)` is a *source*; two files in the **same** environment
-  are also compared (intra-environment conflicts).
-- The environment named `prod` (configurable via the recipe / `applied_env`) is
-  treated as *already applied* → overlaps with it are reported as **INFO**, not
-  conflicts.
-- Reports land in `report_dir` as `YYYYMMDD_HH_MM.md`.
+- Every `*.xml` found across the listed inputs becomes one **source**, labelled
+  by its file path.
+- A **unit** (e.g. a Control-M `SMART_FOLDER`) is reported when it appears in two
+  or more sources and differs. Sources that are unique to one file are ignored.
+- That's it — the tool has no notion of "environments". If you care which file
+  came from production, name it accordingly; the path shows up in the report.
 
 ## Privacy
 
 `config.toml`, `usage/reports/`, and any `*.xml` you drop under `usage/` are
-git-ignored — your real data and paths never get committed.
+git-ignored — your real paths and data never get committed.

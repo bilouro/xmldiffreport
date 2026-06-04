@@ -2,8 +2,9 @@
 
     from xmldiffreport.report import render, get_renderer, list_formats
 
-`render(...)` is a convenience wrapper; `get_renderer(fmt)` returns the strategy
-for a given format ("md", "html", ...). Register new formats with `@register`.
+`render(report, fmt)` is a convenience wrapper; `get_renderer(fmt)` returns the
+strategy for a given format ("md", "html", ...). Register new formats with
+`@register`.
 """
 
 from __future__ import annotations
@@ -22,8 +23,6 @@ __all__ = [
 ]
 
 
-def render(
-    results: list, envs: list[str], n_sources: int, recipe_name: str, fmt: str = "md"
-) -> str:
-    """Render a diff result in the requested format (default Markdown)."""
-    return get_renderer(fmt).render(DiffReport(results, envs, n_sources, recipe_name))
+def render(report: DiffReport, fmt: str = "md") -> str:
+    """Render a :class:`DiffReport` in the requested format (default Markdown)."""
+    return get_renderer(fmt).render(report)

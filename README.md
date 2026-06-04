@@ -102,30 +102,20 @@ xmldiffreport old.xml new.xml --recipe sitemap -o report.md
 → [Writing recipes](https://bilouro.github.io/xmldiffreport/guide/recipes/) ·
 [generate one from your XML with an LLM](https://bilouro.github.io/xmldiffreport/guide/recipe-from-llm/).
 
-### Comparing many files / environments
+### Comparing many files (or whole directories)
 
-Passing files directly is one option. The tool's *original* use case is spotting
-collisions when the **same unit lives in several files** — e.g. the same Control-M
-folder in `uat`, `bench` and `prod` at once. For that, point it at a folder whose
-sub-folders are environments:
+Point it at **directories** too — they're scanned recursively for `*.xml`, and
+every file found becomes a source:
 
 ```bash
-xmldiffreport ./environments --recipe controlm -o report.md
-# environments/uat/*.xml, environments/bench/*.xml, environments/prod/*.xml, …
+xmldiffreport ./dump-a ./dump-b --recipe controlm -o report.md
 ```
 
-Mental model: a **source** is an `(environment, file)` pair; a **unit** is the
+Mental model: every file is a **source** (labelled by its path); a **unit** is the
 recipe's `unit` element (e.g. a Control-M `SMART_FOLDER`); the engine compares
-each unit across **every source that contains it** (2+).
-
-- **A folder of environment sub-folders** (`environments/uat/*.xml`,
-  `environments/bench/*.xml`, …): each sub-folder is an *environment*; every
-  `(environment, file)` is a *source*. Sources in the **same** environment are
-  also compared (two files in one env can conflict).
-- **A single folder of `.xml`**: the folder name is the environment.
-- **Explicit files**: `xmldiffreport a.xml b.xml c.xml`.
-- **Scattered locations**: map each environment to any path via the
-  [usage harness](usage/) `config.toml`.
+each unit across **every source that contains it** (2+). A unit that appears in
+only one file is ignored. The tool has **no notion of "environments"** — if it
+matters which file is production, name it so.
 
 → Full, worked guide with directory trees and a complete example:
 **[Inputs & file layout](https://bilouro.github.io/xmldiffreport/guide/inputs/)**.
@@ -137,12 +127,12 @@ each unit across **every source that contains it** (2+).
 For each unit (e.g. a Control-M `SMART_FOLDER`) present in **2+ sources** with
 differences (names below are from the synthetic `examples/`):
 
-> ### ⚠️ CONFLICT · `GLX_INGEST_DAILY` (SMART_FOLDER)
-> Sources: `bench:patch-a.xml`, `uat:patch-b.xml`, `prod:hotfix-c.xml`
+> ### `GLX_INGEST_DAILY` (SMART_FOLDER)
+> Sources: `bench/patch-a.xml`, `uat/patch-b.xml`, `prod/hotfix-c.xml`
 >
 > **~ JOB `GLX_INGEST_LOAD`**
 >
-> | Element · attribute | bench:patch-a.xml | uat:patch-b.xml | prod:hotfix-c.xml |
+> | Element · attribute | bench/patch-a.xml | uat/patch-b.xml | prod/hotfix-c.xml |
 > |---|---|---|---|
 > | `CMDLINE` | …`--force` | …`--retry` | …%%P_DATE |
 > | `MAXRERUN` | 0 | 5 | 3 |
@@ -160,12 +150,10 @@ noise is gone.
 ## Recipes
 
 A **recipe** is a small TOML file that teaches the generic engine about one XML
-dialect: the natural key per element, which attributes to ignore, and which
-environment is "already applied".
+dialect: the natural key per element and which attributes to ignore.
 
 ```toml
 name = "controlm"
-applied_env = "prod"            # pairs involving prod → INFO (not a conflict)
 
 [defaults]
 unit = "SMART_FOLDER"           # the unit of comparison
@@ -219,17 +207,6 @@ See [Generate a recipe with an LLM](https://bilouro.github.io/xmldiffreport/guid
 
 ---
 
-## How conflicts are classified
-
-- A unit present in **≥2 non-applied** sources, with differences → **⚠️ CONFLICT**.
-- A unit whose only "other side" is the **applied** environment (`prod`) →
-  **ℹ️ INFO** (it changed something already live — check your rebase, but it's not
-  a patch-vs-patch collision).
-- Same engine, **N-way**: a Control-M folder can be in `uat` + `bench` + `prod`
-  simultaneously, and the report shows all three columns at once.
-
----
-
 ## Project layout — tool vs. your usage
 
 ```
@@ -240,8 +217,8 @@ tests/                 pytest suite
 ```
 
 The **tool** in `src/` knows nothing about your folders. The **`usage/`** folder
-is the thin layer you adapt: a `config.toml` mapping each environment to a path,
-a `report_dir`, and a `collect.py` that gathers the files and writes the report.
+is the thin layer you adapt: a `config.toml` listing the inputs (files/dirs), a
+`report_dir`, and a `collect.py` that runs the diff and writes the report.
 
 ```bash
 cp usage/config.example.toml usage/config.toml   # then edit the paths
@@ -256,16 +233,15 @@ data and paths never get committed.
 ## Library use
 
 ```python
-from xmldiffreport import load_recipe, parse_xml, diff_sources, render
+from xmldiffreport import diff
 
-recipe = load_recipe("controlm")
-sources = [
-    ("uat",   "uat:patch-b.xml",   parse_xml("uat/patch-b.xml")),
-    ("bench", "bench:patch-a.xml", parse_xml("bench/patch-a.xml")),
-    ("prod",  "prod:hotfix-c.xml", parse_xml("prod/hotfix-c.xml")),
-]
-results = diff_sources(recipe, sources)
-print(render(results, ["uat", "bench", "prod"], len(sources), "controlm"))
+result = diff(["old.xml", "new.xml"], recipe="sitemap")   # a file, files, or dir(s)
+print(result.render())                                    # Markdown — or result.render("html")
+
+for unit in result.units:        # what differs
+    print(unit.ident, unit.sources)
+if result:                       # truthy when anything differs (handy for exit codes)
+    ...
 ```
 
 ---
