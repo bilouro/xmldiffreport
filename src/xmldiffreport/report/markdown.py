@@ -7,9 +7,9 @@ from .base import DiffReport, Renderer, register
 
 
 def md_cell(v: str) -> str:
+    # Collapse whitespace (a newline would break the table row) and escape pipes;
+    # never truncate — the cell holds the value being compared, so keep it whole.
     v = " ".join(str(v).split()).replace("|", "\\|")
-    if len(v) > 90:  # truncate in the middle (keeps suffixes)
-        v = v[:43] + " … " + v[-43:]
     return v or "−"
 
 
