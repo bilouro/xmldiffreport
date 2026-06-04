@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 100% synthetic JUnit report (fictional company "GLOBEX"). An earlier CI run. -->
+<testsuites>
+  <testsuite name="com.globex.billing.InvoiceTest" tests="5" failures="0" errors="0" skipped="1" time="2.413" timestamp="2026-06-03T22:14:05" hostname="ci-runner-07">
+    <properties>
+      <property name="java.version" value="17.0.9"/>
+    </properties>
+    <testcase classname="com.globex.billing.InvoiceTest" name="rendersTotal" time="0.102"/>
+    <testcase classname="com.globex.billing.InvoiceTest" name="appliesVat" time="0.211"/>
+    <testcase classname="com.globex.billing.InvoiceTest" name="roundsHalfUp" time="0.044"/>
+    <testcase classname="com.globex.billing.InvoiceTest" name="handlesRefund" time="0.180"/>
+    <testcase classname="com.globex.billing.InvoiceTest" name="rejectsNegative" time="0.090">
+      <skipped message="pending decision on negative amounts"/>
+    </testcase>
+  </testsuite>
+  <testsuite name="com.globex.billing.LedgerTest" tests="2" failures="0" errors="0" skipped="0" time="0.530" timestamp="2026-06-03T22:14:08" hostname="ci-runner-07">
+    <testcase classname="com.globex.billing.LedgerTest" name="postsEntry" time="0.301"/>
+    <testcase classname="com.globex.billing.LedgerTest" name="balancesToZero" time="0.229"/>
+  </testsuite>
+</testsuites>

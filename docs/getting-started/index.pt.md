@@ -63,6 +63,8 @@ Control-M) é reportada quando aparece em **2+ ficheiros** e difere. Guia comple
 Uma **recipe** ensina o motor sobre um dialecto XML. Embutidas:
 
 - `--recipe controlm` — exports BMC Control-M.
+- `--recipe maven-pom` — drift de dependências/plugins do `pom.xml` Maven.
+- `--recipe junit` — relatórios de testes JUnit/xUnit.
 - `--recipe sitemap` — `sitemap.xml`.
 - `--recipe generic` — sem conhecimento de dialecto (a omissão).
 

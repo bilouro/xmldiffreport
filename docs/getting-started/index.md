@@ -61,6 +61,8 @@ reported when it appears in **2+ files** and differs. Full guide:
 A **recipe** teaches the engine about one XML dialect. Built-ins:
 
 - `--recipe controlm` — BMC Control-M exports.
+- `--recipe maven-pom` — Maven `pom.xml` dependency/plugin drift.
+- `--recipe junit` — JUnit/xUnit test reports.
 - `--recipe sitemap` — `sitemap.xml`.
 - `--recipe generic` — no dialect knowledge (the default).
 

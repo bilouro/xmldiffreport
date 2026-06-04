@@ -10,7 +10,7 @@
   "applicationSubCategory": "Ferramenta de diff/comparação de XML",
   "operatingSystem": "Cross-platform",
   "programmingLanguage": "Python",
-  "softwareVersion": "0.1.0",
+  "softwareVersion": "0.2.0",
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://bilouro.github.io/xmldiffreport/pt/",
   "downloadUrl": "https://pypi.org/project/xmldiffreport/",
@@ -22,7 +22,7 @@
     "name": "Victor Bilouro",
     "url": "https://github.com/bilouro"
   },
-  "keywords": "diff xml, comparar xml, diff estrutural, diff semântico, diff n-way, control-m, sitemap, relatório markdown, relatório html, python"
+  "keywords": "diff xml, comparar xml, diff estrutural, diff semântico, diff n-way, control-m, diff de pom maven, diff de relatório junit, sitemap, relatório markdown, relatório html, python"
 }
 </script>
 
@@ -40,7 +40,8 @@ Markdown** limpo.
 
 Nasceu para detetar diferenças entre patches de jobs **BMC Control-M** ao longo de
 `test → uat → bench → prod`, e generalizou-se num motor guiado por recipes que
-funciona com qualquer dialecto XML (exports Control-M, sitemaps, POMs, …).
+funciona com qualquer dialecto XML (exports Control-M, POMs Maven, relatórios
+JUnit, sitemaps, …).
 
 ## Quickstart
 

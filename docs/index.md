@@ -10,7 +10,7 @@
   "applicationSubCategory": "XML diff & comparison tool",
   "operatingSystem": "Cross-platform",
   "programmingLanguage": "Python",
-  "softwareVersion": "0.1.0",
+  "softwareVersion": "0.2.0",
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://bilouro.github.io/xmldiffreport/",
   "downloadUrl": "https://pypi.org/project/xmldiffreport/",
@@ -21,7 +21,7 @@
     "name": "Victor Bilouro",
     "url": "https://github.com/bilouro"
   },
-  "keywords": "xml diff, xml compare, structural diff, semantic diff, n-way diff, tree diff, control-m, sitemap, markdown report, html report, python"
+  "keywords": "xml diff, xml compare, structural diff, semantic diff, n-way diff, tree diff, control-m, maven pom diff, junit report diff, sitemap, markdown report, html report, python"
 }
 </script>
 
@@ -39,7 +39,8 @@ report**.
 
 It started as a way to spot differences between **BMC Control-M** job patches
 flowing through `test → uat → bench → prod`, and generalized into a recipe-driven
-engine that works on any XML dialect (Control-M exports, sitemaps, POMs, …).
+engine that works on any XML dialect (Control-M exports, Maven POMs, JUnit
+reports, sitemaps, …).
 
 ## Quickstart
 

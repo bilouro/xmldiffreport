@@ -83,6 +83,24 @@ removed”* shows up as a single row instead of a nested sub-section.
     QUANTITATIVE / CONTROL / ON`. Unit = `SMART_FOLDER`, with a broad
     `ignore_attrs` list for version/creation metadata.
 
+=== "maven-pom"
+
+    Maven `pom.xml`: dependency & plugin drift. A `<dependency>` / `<plugin>` is
+    keyed by its coordinates (`groupId:artifactId[:type:classifier]`), so the diff
+    reports **version/scope changes** and **added/removed** entries across
+    `<dependencies>`, `<dependencyManagement>` and `<build>`, order-independent.
+    (No `unit` is set: the POM sections are the units — this keeps the same
+    coordinate appearing in both `<dependencies>` and `<dependencyManagement>`
+    from colliding, and lets add/remove surface as a presence change.)
+
+=== "junit"
+
+    JUnit / xUnit reports (Surefire, Gradle, pytest, Jest, …). Unit = `testsuite`
+    (by `@name`); a `<testcase>` is keyed by `classname` + `name` and marked
+    `inline`, so **pass↔fail↔skip** transitions and added/removed tests each show
+    as a single row — while volatile `time` / `timestamp` / `hostname` and the
+    roll-up counters are ignored.
+
 === "sitemap"
 
     `sitemap.xml`: unit = `url`, identified by its `<loc>` text;

@@ -1,0 +1,34 @@
+# Recipe for Maven POMs (pom.xml).
+#
+# Maven identifies a dependency by its *coordinates* (groupId:artifactId:type:
+# classifier), never by position — and the SAME coordinates legitimately appear
+# in both <dependencies> and <dependencyManagement>. So we deliberately do NOT
+# set a single `unit`: the direct children of <project> (<dependencies>,
+# <dependencyManagement>, <build>, <properties>, …) are the units. This (a) keeps
+# those sections distinct so identical coordinates don't collide, and (b) lets an
+# added/removed <dependency> surface as a presence change — the engine reports a
+# *unit* only when it appears in 2+ files, but a *child* shows add/remove.
+name = "maven-pom"
+
+[defaults]
+unordered = true
+ignore_attrs = []
+
+# A <dependency> is identified by its coordinates. groupId/artifactId are always
+# present; type/classifier default to empty and are simply dropped when absent.
+[elements.dependency]
+key = ["child:groupId#text", "child:artifactId#text", "child:type#text", "child:classifier#text"]
+
+# A build <plugin> is identified the same way (groupId is optional in real POMs,
+# but artifactId is always present, so the composite still resolves).
+[elements.plugin]
+key = ["child:groupId#text", "child:artifactId#text"]
+
+# Singletons whose value lives in their text → identity is the tag itself, so the
+# text is compared as a value instead of being treated as the identity.
+[elements.version]
+key = ["*tag"]
+[elements.scope]
+key = ["*tag"]
+[elements.optional]
+key = ["*tag"]

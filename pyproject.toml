@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xmldiffreport"
-version = "0.1.0"
+version = "0.2.0"
 description = "N-way structural & semantic XML diff that generates human-readable Markdown reports, driven by per-dialect recipes (Control-M, sitemaps, and more)."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -14,6 +14,7 @@ keywords = [
     "xml", "diff", "compare", "xml-diff", "xml-compare", "xml-comparison",
     "structural-diff", "semantic-diff", "n-way-diff", "tree-diff",
     "report", "markdown", "control-m", "controlm", "sitemap", "devops",
+    "maven", "pom", "maven-pom", "junit", "junit-report", "ci",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

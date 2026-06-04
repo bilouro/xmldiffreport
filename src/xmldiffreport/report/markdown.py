@@ -13,11 +13,18 @@ def md_cell(v: str) -> str:
     return v or "−"
 
 
+def esc_pipe(label: str) -> str:
+    """Escape pipes so a composite identity (e.g. ``classname|name``) does not
+    split a Markdown table cell. GitHub renders ``\\|`` as a literal ``|`` even
+    inside a code span."""
+    return label.replace("|", "\\|")
+
+
 def _table(label_header: str, rows: list, srcs: list[str]) -> list[str]:
     head = [label_header, *srcs]
     out = ["| " + " | ".join(head) + " |", "|" + "|".join(["---"] * len(head)) + "|"]
     for label, vals in rows:
-        out.append("| " + " | ".join([label, *(md_cell(vals[s]) for s in srcs)]) + " |")
+        out.append("| " + " | ".join([esc_pipe(label), *(md_cell(vals[s]) for s in srcs)]) + " |")
     return out
 
 
@@ -80,9 +87,9 @@ def _render(report: DiffReport) -> str:
             parts.append(f"± {len(nd.presence_children)}")
         if nd.child_diffs:
             parts.append(f"~ {len(nd.child_diffs)}")
-        lines.append(
-            f"| `{nd.ident}` ({nd.tag}) | {len(nd.sources)} | {' · '.join(parts) or '—'} |"
-        )
+        ident = esc_pipe(nd.ident)
+        changes = " · ".join(parts) or "—"
+        lines.append(f"| `{ident}` ({nd.tag}) | {len(nd.sources)} | {changes} |")
     lines.append("")
 
     lines += ["## Detail", ""]

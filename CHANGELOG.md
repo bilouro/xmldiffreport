@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-04
+
+### Added
+- Built-in **`maven-pom`** recipe — Maven `pom.xml` dependency & plugin drift:
+  `<dependency>` / `<plugin>` keyed by coordinates
+  (`groupId:artifactId[:type:classifier]`), reporting version/scope changes and
+  added/removed entries across `<dependencies>`, `<dependencyManagement>` and
+  `<build>`. Ships with a synthetic example and tests.
+- Built-in **`junit`** recipe — JUnit/xUnit test reports (Surefire, Gradle,
+  pytest, …): `testsuite` by `@name`, `testcase` by `classname`+`name` (inline),
+  surfacing pass↔fail↔skip transitions and added/removed tests while ignoring
+  volatile `time` / `timestamp` / `hostname` and the roll-up counters. Ships with
+  a synthetic example and tests.
+
+### Fixed
+- Markdown renderer escapes `|` in row and identity labels (e.g. a JUnit
+  `classname|name`), so composite identities no longer break table cells.
+
 ## [0.1.0] - 2026-06-03
 
 Initial release.
@@ -33,5 +51,6 @@ Initial release.
 - MkDocs (Material) documentation, bilingual (English + Português), deployed to
   GitHub Pages; SEO-ready (JSON-LD, sitemap, robots.txt, social cards).
 
-[Unreleased]: https://github.com/bilouro/xmldiffreport/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/bilouro/xmldiffreport/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/bilouro/xmldiffreport/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bilouro/xmldiffreport/releases/tag/v0.1.0

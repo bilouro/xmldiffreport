@@ -84,6 +84,25 @@ aparece numa só linha em vez de uma sub-secção encaixada.
     QUANTITATIVE / CONTROL / ON`. Unit = `SMART_FOLDER`, com uma lista
     `ignore_attrs` ampla para metadados de versão/criação.
 
+=== "maven-pom"
+
+    `pom.xml` do Maven: drift de dependências e plugins. Uma `<dependency>` /
+    `<plugin>` é identificada pelas coordenadas
+    (`groupId:artifactId[:type:classifier]`), por isso o diff reporta **mudanças
+    de versão/scope** e entradas **adicionadas/removidas** em `<dependencies>`,
+    `<dependencyManagement>` e `<build>`, independente da ordem. (Sem `unit`: as
+    secções do POM são as unidades — evita que a mesma coordenada em
+    `<dependencies>` e `<dependencyManagement>` colida, e deixa o add/remove
+    aparecer como presença.)
+
+=== "junit"
+
+    Relatórios JUnit / xUnit (Surefire, Gradle, pytest, Jest, …). Unit =
+    `testsuite` (por `@name`); um `<testcase>` é identificado por `classname` +
+    `name` e marcado `inline`, por isso as transições **pass↔fail↔skip** e os
+    testes adicionados/removidos aparecem numa linha cada — enquanto `time` /
+    `timestamp` / `hostname` e os contadores são ignorados.
+
 === "sitemap"
 
     `sitemap.xml`: unit = `url`, identificado pelo texto do `<loc>`;

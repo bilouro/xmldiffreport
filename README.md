@@ -2,8 +2,8 @@
 
 [![Docs](https://img.shields.io/badge/docs-bilouro.github.io-blue)](https://bilouro.github.io/xmldiffreport/)
 [![CI](https://github.com/bilouro/xmldiffreport/actions/workflows/ci.yml/badge.svg)](https://github.com/bilouro/xmldiffreport/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/xmldiffreport.svg)](https://pypi.org/project/xmldiffreport/)
-[![Python](https://img.shields.io/pypi/pyversions/xmldiffreport.svg)](https://pypi.org/project/xmldiffreport/)
+[![PyPI](https://img.shields.io/pypi/v/xmldiffreport.svg?cacheSeconds=3600)](https://pypi.org/project/xmldiffreport/)
+[![Python](https://img.shields.io/pypi/pyversions/xmldiffreport.svg?cacheSeconds=3600)](https://pypi.org/project/xmldiffreport/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 📖 **Documentation: <https://bilouro.github.io/xmldiffreport/>** · [Português](https://bilouro.github.io/xmldiffreport/pt/)
@@ -92,7 +92,7 @@ Exit code is `1` when a **difference** is found (handy for CI), `0` otherwise.
 
 The default compares any XML, but a **recipe** teaches the tool how to identify
 elements in a specific dialect — matching "the same" element by a *key* (not by
-position) and ignoring volatile attributes. Built-ins: `controlm`, `sitemap`,
+position) and ignoring volatile attributes. Built-ins: `controlm`, `maven-pom`, `junit`, `sitemap`,
 `generic`; or write your own.
 
 ```bash
@@ -189,6 +189,8 @@ composite of all attributes.
 ### Built-in recipes
 
 - **`controlm`** — BMC Control-M exports (`DEFTABLE → SMART_FOLDER → JOB → INCOND/OUTCOND/QUANTITATIVE/CONTROL/ON`).
+- **`maven-pom`** — Maven `pom.xml`: dependency & plugin drift, keyed by coordinates (`groupId:artifactId`). Reports version/scope changes and added/removed entries across `<dependencies>`, `<dependencyManagement>` and `<build>`.
+- **`junit`** — JUnit/xUnit reports (Surefire, Gradle, pytest, …): keyed by `classname`+`name`. Surfaces pass↔fail↔skip transitions and added/removed tests, ignoring `time`/`timestamp`/`hostname`.
 - **`sitemap`** — `sitemap.xml` (identity by `<loc>` text; compares `<lastmod>`/`<priority>`/`<changefreq>`).
 - **`generic`** — no dialect knowledge (default).
 
@@ -273,7 +275,7 @@ only — never real exports.
 - Report top-level units that exist in only one source (added/removed units).
 - JSON report format (Markdown and HTML already ship; formats are pluggable).
 - Similarity-based matching fallback for keyless elements.
-- More built-in recipes (Maven POM, Android manifest, RSS/Atom, JUnit).
+- More built-in recipes (Android manifest, RSS/Atom, .NET `web.config`, …).
 
 ## License
 

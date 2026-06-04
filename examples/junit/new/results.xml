@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 100% synthetic JUnit report (fictional company "GLOBEX"). A later CI run.
+     Changes vs old/results.xml (all timing/host/timestamps differ on purpose,
+     and must be ignored):
+       InvoiceTest:
+         - appliesVat       pass  -> FAIL  (<failure> added)
+         - handlesRefund    removed
+         - rejectsNegative  skipped -> now passes (<skipped> removed)
+         - validatesCurrency added (passes)
+         - rendersTotal / roundsHalfUp unchanged (controls)
+       LedgerTest:
+         - balancesToZero   pass -> ERROR (<error> added)
+         - postsEntry unchanged (control) -->
+<testsuites>
+  <testsuite name="com.globex.billing.InvoiceTest" tests="5" failures="1" errors="0" skipped="0" time="3.006" timestamp="2026-06-04T07:51:30" hostname="ci-runner-12">
+    <properties>
+      <property name="java.version" value="17.0.9"/>
+    </properties>
+    <testcase classname="com.globex.billing.InvoiceTest" name="rendersTotal" time="0.118"/>
+    <testcase classname="com.globex.billing.InvoiceTest" name="appliesVat" time="0.255">
+      <failure message="expected:&lt;120&gt; but was:&lt;119&gt;" type="org.opentest4j.AssertionFailedError"/>
+    </testcase>
+    <testcase classname="com.globex.billing.InvoiceTest" name="roundsHalfUp" time="0.051"/>
+    <testcase classname="com.globex.billing.InvoiceTest" name="rejectsNegative" time="0.097"/>
+    <testcase classname="com.globex.billing.InvoiceTest" name="validatesCurrency" time="0.140"/>
+  </testsuite>
+  <testsuite name="com.globex.billing.LedgerTest" tests="2" failures="0" errors="1" skipped="0" time="0.612" timestamp="2026-06-04T07:51:33" hostname="ci-runner-12">
+    <testcase classname="com.globex.billing.LedgerTest" name="postsEntry" time="0.288"/>
+    <testcase classname="com.globex.billing.LedgerTest" name="balancesToZero" time="0.205">
+      <error message="NullPointerException: account was null" type="java.lang.NullPointerException"/>
+    </testcase>
+  </testsuite>
+</testsuites>

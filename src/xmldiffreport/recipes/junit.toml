@@ -1,0 +1,35 @@
+# Recipe for JUnit / xUnit test reports (Surefire, Gradle, pytest, Jest, …).
+#
+# There is no single official schema, but the de-facto structure is stable and
+# consistent across producers: an optional <testsuites> wrapping
+# <testsuite name="…"> wrapping <testcase classname="…" name="…">. A test's
+# stable identity is classname+name; the timing/host/count attributes are
+# volatile. So the diff answers: "which tests changed result (pass↔fail↔skip),
+# were added, or were removed between two runs?" — without the timing noise.
+name = "junit"
+
+[defaults]
+unit = "testsuite"
+unordered = true
+# Volatile: per-run durations, the host/time it ran on, and the roll-up counters
+# that simply re-derive from the cases below.
+ignore_attrs = [
+    "time", "timestamp", "hostname", "tests", "failures", "errors",
+    "skipped", "disabled", "assertions", "warnings", "id",
+]
+
+[elements.testsuite]
+key = ["@name"]
+
+# A <testcase> is identified by classname+name. inline=true folds its outcome
+# children (<failure>/<error>/<skipped>/<system-out>) into pseudo-attributes, so a
+# pass→fail transition shows as ONE row. (Without inline a passing case is a leaf
+# and a failing case is a container — the same test would be counted on two
+# different code paths and reported as both "removed" and "added".)
+[elements.testcase]
+key = ["@classname", "@name"]
+inline = true
+
+# Suite <properties> are keyed by name; a changed value is compared.
+[elements.property]
+key = ["@name"]
