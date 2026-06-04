@@ -6,6 +6,7 @@ Everything an installed (pip) user needs is reachable here, without the repo:
                           a model to generate a recipe for that XML dialect
   validate <recipe.toml>  check a recipe against the schema
   list                    list the built-in recipe names
+  show <name|recipe.toml> print a recipe — a built-in by name, or one at a path
   schema [--path]         print the recipe JSON Schema (or its on-disk path)
 """
 
@@ -72,6 +73,27 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_show(args: argparse.Namespace) -> int:
+    # Accept a built-in recipe name or a path to a .toml, and print the raw TOML
+    # (comments included) so the recipe can be read or copied as a starting point.
+    name = args.recipe
+    path = Path(name)
+    if path.is_file():
+        text = path.read_text(encoding="utf-8")
+    else:
+        res = _recipes_dir().joinpath(f"{name}.toml")
+        if not res.is_file():
+            names = sorted(
+                p.name[:-5] for p in _recipes_dir().iterdir() if p.name.endswith(".toml")
+            )
+            print(f"error: recipe not found: {name}", file=sys.stderr)
+            print(f"built-in recipes: {', '.join(names)}", file=sys.stderr)
+            return 2
+        text = res.read_text(encoding="utf-8")
+    sys.stdout.write(text if text.endswith("\n") else text + "\n")
+    return 0
+
+
 def cmd_schema(args: argparse.Namespace) -> int:
     res = _recipes_dir().joinpath("recipe.schema.json")
     if args.path:
@@ -106,6 +128,10 @@ def main(argv: list[str] | None = None) -> int:
 
     le = sub.add_parser("list", help="list the built-in recipe names")
     le.set_defaults(func=cmd_list)
+
+    sh = sub.add_parser("show", help="print a built-in recipe (or one at a path)")
+    sh.add_argument("recipe", help="built-in recipe name (e.g. controlm) or path to a .toml")
+    sh.set_defaults(func=cmd_show)
 
     sc = sub.add_parser("schema", help="print the recipe JSON Schema (or its path)")
     sc.add_argument("--path", action="store_true", help="print the schema file path instead")

@@ -58,6 +58,7 @@ schema (or its path) straight from the CLI — no need to dig into `site-package
 xmldiffreport-recipe schema          # print the JSON Schema (pipe to a file / your editor / CI)
 xmldiffreport-recipe schema --path   # print its on-disk location
 xmldiffreport-recipe list            # list the built-in recipe names
+xmldiffreport-recipe show controlm   # print a built-in recipe (learn from / copy it)
 ```
 
 ## Then use it

@@ -203,6 +203,7 @@ Don't want to write one by hand? Let an LLM draft it from a sample of your XML:
 ```bash
 xmldiffreport-recipe scaffold sample.xml > prompt.txt   # paste prompt.txt into any LLM
 xmldiffreport-recipe validate my-dialect.toml           # check the result (ships a JSON Schema)
+xmldiffreport-recipe show controlm                      # print a built-in recipe to learn from
 ```
 
 See [Generate a recipe with an LLM](https://bilouro.github.io/xmldiffreport/guide/recipe-from-llm/).

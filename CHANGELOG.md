@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-04
+
+### Added
+- `xmldiffreport-recipe show <name|recipe.toml>` — print a built-in recipe (by
+  name) or any recipe file (by path), comments included, to read or copy as a
+  starting point without digging into `site-packages`.
+
 ## [0.2.0] - 2026-06-04
 
 ### Added
@@ -51,6 +58,7 @@ Initial release.
 - MkDocs (Material) documentation, bilingual (English + Português), deployed to
   GitHub Pages; SEO-ready (JSON-LD, sitemap, robots.txt, social cards).
 
-[Unreleased]: https://github.com/bilouro/xmldiffreport/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/bilouro/xmldiffreport/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/bilouro/xmldiffreport/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bilouro/xmldiffreport/releases/tag/v0.2.0
 [0.1.0]: https://github.com/bilouro/xmldiffreport/releases/tag/v0.1.0

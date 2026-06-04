@@ -59,6 +59,7 @@ schema (ou o seu caminho) diretamente da CLI — sem teres de vasculhar o
 xmldiffreport-recipe schema          # imprime o JSON Schema (envia p/ ficheiro / editor / CI)
 xmldiffreport-recipe schema --path   # imprime a localização em disco
 xmldiffreport-recipe list            # lista as recipes embutidas
+xmldiffreport-recipe show controlm   # imprime uma recipe embutida (para ler / copiar)
 ```
 
 ## Depois é só usar
