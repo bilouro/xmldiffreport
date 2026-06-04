@@ -37,7 +37,7 @@ noisy line-by-line text diff. It aligns elements by a **natural key** (not by
 position), ignores **volatile attributes**, and writes a clean **Markdown
 report**.
 
-It started as a way to detect conflicts between **BMC Control-M** job patches
+It started as a way to spot differences between **BMC Control-M** job patches
 flowing through `test → uat → bench → prod`, and generalized into a recipe-driven
 engine that works on any XML dialect (Control-M exports, sitemaps, POMs, …).
 
@@ -80,7 +80,7 @@ review-ready report.
 ## Next steps
 
 - [Getting Started](getting-started/index.md) — install and run your first diff.
-- [How it works](guide/how-it-works.md) — the engine model and conflict rules.
+- [How it works](guide/how-it-works.md) — the engine model and what gets reported.
 - [Writing recipes](guide/recipes.md) — teach it a new XML dialect.
 - [Usage harness](guide/usage.md) — run it on your own environment folders.
 - [API Reference](api/index.md) — the library API.

@@ -38,7 +38,7 @@ diff de texto linha-a-linha ruidoso. Alinha os elementos por uma **chave natural
 (não pela posição), ignora **atributos voláteis** e escreve um **relatório
 Markdown** limpo.
 
-Nasceu para detetar conflitos entre patches de jobs **BMC Control-M** ao longo de
+Nasceu para detetar diferenças entre patches de jobs **BMC Control-M** ao longo de
 `test → uat → bench → prod`, e generalizou-se num motor guiado por recipes que
 funciona com qualquer dialecto XML (exports Control-M, sitemaps, POMs, …).
 
@@ -70,7 +70,7 @@ uma vez) e gera um relatório pronto a rever.
 ## Próximos passos
 
 - [Começar](getting-started/index.md) — instalar e correr o primeiro diff.
-- [Como funciona](guide/how-it-works.md) — o modelo do motor e as regras de conflito.
+- [Como funciona](guide/how-it-works.md) — o modelo do motor e o que é reportado.
 - [Escrever recipes](guide/recipes.md) — ensinar-lhe um novo dialecto XML.
 - [Harness de uso](guide/usage.md) — correr nas tuas pastas de ambiente.
 - [Referência API](api/index.md) — a API da biblioteca.

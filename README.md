@@ -16,7 +16,7 @@ line-by-line text diff. It aligns elements by a **natural key** (not by
 position), ignores **volatile attributes**, and renders a clean **Markdown
 report** with a summary table plus per-element detail.
 
-It was born from a real problem — detecting conflicts between **BMC Control-M**
+It was born from a real problem — spotting differences between **BMC Control-M**
 job patches flowing through `test → uat → bench → prod` — and generalized into a
 recipe-driven engine that works on any XML dialect (Control-M exports,
 **sitemaps**, POMs, manifests, …).
@@ -83,7 +83,7 @@ Prefer an HTML page? Add `-f html` (or name the output `*.html`):
 xmldiffreport old.xml new.xml -f html -o report.html
 ```
 
-Exit code is `1` when a **conflict** is found (handy for CI), `0` otherwise.
+Exit code is `1` when a **difference** is found (handy for CI), `0` otherwise.
 
 > No files handy? `git clone` the repo and try the bundled, synthetic `examples/`:
 > `xmldiffreport examples/sitemap/old/sitemap.xml examples/sitemap/new/sitemap.xml --recipe sitemap`
