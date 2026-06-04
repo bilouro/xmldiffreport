@@ -97,7 +97,9 @@ def identity(recipe: dict, tag: str, el: ET.Element) -> str:
     for tok in spec:
         if tok == "*kinds":  # summary of children (e.g. ON → actions)
             kinds = [c.get("ACTION", "") if c.tag == "DOACTION" else c.tag for c in el]
-            parts.append("+".join(k for k in kinds if k))
+            # sorted: the set of action kinds is order-independent, so an ON whose
+            # children are merely reordered keeps the same identity
+            parts.append("+".join(sorted(k for k in kinds if k)))
         elif tok == "*tag":  # singleton: identity is the tag itself
             parts.append(el.tag)
         elif tok == "#text":
@@ -125,9 +127,20 @@ def value_attrs(recipe: dict, tag: str, el: ET.Element, ignore: set[str]) -> dic
     skip = ignore | key_attrs(recipe, tag)
     out = {k: v for k, v in el.attrib.items() if k not in skip}
     if is_inline(recipe, tag):
+        # Each child becomes a pseudo-attribute. Several children may share a tag
+        # (e.g. two <DOMAIL> under one <ON>); group them so none is overwritten,
+        # and index repeats by sorted value so the result is order-independent.
+        grouped: dict[str, list[str]] = {}
         for c in el:
             k = f"{c.tag}:{c.get('ACTION')}" if c.tag == "DOACTION" else c.tag
-            out[k] = "; ".join(f"{a}={b}" for a, b in c.attrib.items()) or "(present)"
+            v = "; ".join(f"{a}={b}" for a, b in c.attrib.items()) or "(present)"
+            grouped.setdefault(k, []).append(v)
+        for k, vals in grouped.items():
+            if len(vals) == 1:
+                out[k] = vals[0]
+            else:
+                for i, v in enumerate(sorted(vals), 1):
+                    out[f"{k}#{i}"] = v
     elif len(list(el)) == 0:
         text = (el.text or "").strip()
         if text:
