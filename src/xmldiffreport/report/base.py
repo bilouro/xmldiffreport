@@ -20,18 +20,51 @@ from datetime import datetime
 from typing import ClassVar
 
 
+def display_names(labels: list[str]) -> dict[str, str]:
+    """Map each source label (a file path) to a compact display name.
+
+    A label is shown as its file name preceded by one directory
+    (``parent/file.xml``) instead of the full, often absolute, path. When two
+    labels would collapse to the same short form, just enough leading path
+    components are kept to keep them distinct.
+    """
+
+    def segments(label: str) -> list[str]:
+        return [p for p in label.replace("\\", "/").split("/") if p]
+
+    segs = {lbl: segments(lbl) for lbl in labels}
+    out: dict[str, str] = {}
+    for lbl in labels:
+        parts = segs[lbl]
+        if not parts:
+            out[lbl] = lbl
+            continue
+        n = min(2, len(parts))
+        while n < len(parts) and any(
+            other != lbl and segs[other][-n:] == parts[-n:] for other in labels
+        ):
+            n += 1
+        out[lbl] = "/".join(parts[-n:])
+    return out
+
+
 @dataclass
 class DiffReport:
     """The result of a diff and everything a renderer needs to format it.
 
     ``units`` are the ``NodeDiff`` objects that differ; ``sources`` are the
-    labels (file paths) that were compared.
+    labels (file paths) that were compared. ``source_display`` maps each label
+    to the compact name shown in the report.
     """
 
     units: list
     sources: list[str]
     recipe_name: str
     generated_at: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M"))
+    source_display: dict[str, str] = field(init=False, default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self.source_display = display_names(self.sources)
 
     def __bool__(self) -> bool:
         """True if any unit differs (handy for exit codes)."""

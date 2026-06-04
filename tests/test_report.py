@@ -46,3 +46,12 @@ def test_html_output_is_standalone_and_escaped():
     assert "<table" in out and "GLX_INGEST_LOAD" in out
     # the pipe in the ON "NOTOK|RERUN" key must not break anything (HTML escapes)
     assert "NOTOK|RERUN" in out
+
+
+def test_sources_shown_as_dir_and_file_not_full_path():
+    """Reports label sources as ``parent/file.xml``, not the absolute path."""
+    r = _report()
+    for fmt in ("md", "html"):
+        out = r.render(fmt)
+        assert "bench/patch-a.xml" in out  # one directory + file name
+        assert str(ROOT) not in out  # never the absolute path

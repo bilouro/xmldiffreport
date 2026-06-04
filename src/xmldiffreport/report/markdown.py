@@ -20,22 +20,22 @@ def esc_pipe(label: str) -> str:
     return label.replace("|", "\\|")
 
 
-def _table(label_header: str, rows: list, srcs: list[str]) -> list[str]:
-    head = [label_header, *srcs]
+def _table(label_header: str, rows: list, srcs: list[str], disp: dict[str, str]) -> list[str]:
+    head = [label_header, *(disp[s] for s in srcs)]
     out = ["| " + " | ".join(head) + " |", "|" + "|".join(["---"] * len(head)) + "|"]
     for label, vals in rows:
         out.append("| " + " | ".join([esc_pipe(label), *(md_cell(vals[s]) for s in srcs)]) + " |")
     return out
 
 
-def _render_node(nd: NodeDiff, srcs: list[str], depth: int) -> list[str]:
+def _render_node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]) -> list[str]:
     out: list[str] = []
     bullet = "  " * depth
 
     if nd.rows:
         head = f"Level `{nd.tag}`" if depth == 0 else "Attributes"
         out += [f"{bullet}**{head}:**", ""]
-        out += _table("Element · attribute", nd.rows, srcs)
+        out += _table("Element · attribute", nd.rows, srcs, disp)
         out.append("")
 
     total_children = nd.identical + len(nd.presence_children) + len(nd.child_diffs)
@@ -52,16 +52,16 @@ def _render_node(nd: NodeDiff, srcs: list[str], depth: int) -> list[str]:
         missing = [s for s in srcs if not present[s]]
         out.append(
             f"{bullet}- **± {ctag} `{cid}`** — in "
-            + ", ".join(f"`{s}`" for s in has)
+            + ", ".join(f"`{disp[s]}`" for s in has)
             + "; missing from "
-            + ", ".join(f"`{s}`" for s in missing)
+            + ", ".join(f"`{disp[s]}`" for s in missing)
         )
     if nd.presence_children:
         out.append("")
 
     for child in nd.child_diffs:
         out += [f"{bullet}**~ {child.tag} `{child.ident}`**", ""]
-        out += _render_node(child, srcs, depth + 1)
+        out += _render_node(child, srcs, depth + 1, disp)
     return out
 
 
@@ -92,15 +92,16 @@ def _render(report: DiffReport) -> str:
         lines.append(f"| `{ident}` ({nd.tag}) | {len(nd.sources)} | {changes} |")
     lines.append("")
 
+    disp = report.source_display
     lines += ["## Detail", ""]
     for nd in units:
         lines += [
             f"### `{nd.ident}` ({nd.tag})",
             "",
-            "Sources: " + ", ".join(f"`{s}`" for s in nd.sources),
+            "Sources: " + ", ".join(f"`{disp[s]}`" for s in nd.sources),
             "",
         ]
-        lines += _render_node(nd, nd.sources, 0)
+        lines += _render_node(nd, nd.sources, 0, disp)
     return "\n".join(lines)
 
 
