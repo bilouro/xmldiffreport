@@ -1,8 +1,10 @@
-# Recipe for BMC Control-M exports (DEFTABLE → SMART_FOLDER → JOB → ...)
+# Recipe for BMC Control-M exports (DEFTABLE → FOLDER/SMART_FOLDER → JOB → ...)
 name = "controlm"
 
 [defaults]
-unit = "SMART_FOLDER"          # unit of comparison (the folder)
+# unit of comparison (the folder). Exports use plain <FOLDER>, <SMART_FOLDER>,
+# or a mix depending on the workspace, so match both.
+unit = ["FOLDER", "SMART_FOLDER"]
 unordered = true
 # attributes with no functional meaning (change on every export) — ignored
 ignore_attrs = [
@@ -14,6 +16,9 @@ ignore_attrs = [
 ]
 
 # natural identity per element type
+[elements.FOLDER]
+key = ["@FOLDER_NAME"]
+
 [elements.SMART_FOLDER]
 key = ["@FOLDER_NAME"]
 

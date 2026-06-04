@@ -278,6 +278,22 @@ def gather_files(paths) -> list[tuple[str, Path]]:
 # ---------------------------------------------------------------------------
 # N-way orchestration
 # ---------------------------------------------------------------------------
+def unit_tags(recipe: dict) -> set[str] | None:
+    """Comparison-unit tag(s) declared by the recipe.
+
+    ``defaults.unit`` may be a single tag (a string) or several tags (a list of
+    strings) — e.g. Control-M exports that use ``FOLDER`` and/or
+    ``SMART_FOLDER``. Returns the set of tags, or ``None`` when no unit is
+    declared (in which case the root's direct children are the units).
+    """
+    spec = recipe["defaults"].get("unit")
+    if not spec:
+        return None
+    if isinstance(spec, str):
+        return {spec}
+    return {t for t in spec if t}
+
+
 def diff_sources(recipe: dict, sources: list) -> list:
     """Diff N sources.
 
@@ -286,14 +302,12 @@ def diff_sources(recipe: dict, sources: list) -> list:
     just a display name (typically the file path) — no other meaning is attached.
     """
     ignore = set(recipe["defaults"]["ignore_attrs"])
-    unit_tag = recipe["defaults"].get("unit")
+    tags = unit_tags(recipe)
 
     index: dict = {}
     for label, root in sources:
-        units = root.iter(unit_tag) if unit_tag else list(root)
+        units = list(root) if tags is None else (el for el in root.iter() if el.tag in tags)
         for el in units:
-            if unit_tag and el.tag != unit_tag:
-                continue
             key = (el.tag, identity(recipe, el.tag, el))
             index.setdefault(key, {})[label] = el
 
@@ -346,8 +360,15 @@ def validate_recipe(data: dict) -> list[str]:
         for k in defaults:
             if k not in _DEFAULT_KEYS:
                 problems.append(f"unknown key in [defaults]: {k!r}")
-        if "unit" in defaults and not isinstance(defaults["unit"], str):
-            problems.append("`defaults.unit` must be a string")
+        if "unit" in defaults:
+            u = defaults["unit"]
+            if not (
+                isinstance(u, str)
+                or (isinstance(u, list) and u and all(isinstance(x, str) and x for x in u))
+            ):
+                problems.append(
+                    "`defaults.unit` must be a string or a non-empty list of non-empty strings"
+                )
         if "unordered" in defaults and not isinstance(defaults["unordered"], bool):
             problems.append("`defaults.unordered` must be a boolean")
         ia = defaults.get("ignore_attrs")

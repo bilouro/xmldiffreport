@@ -87,6 +87,61 @@ def test_on_repeated_child_is_not_lost(tmp_path):
     assert len(units) == 1
 
 
+def _folder(tag, name, cmdline):
+    """A minimal Control-M folder element (FOLDER or SMART_FOLDER) with one job."""
+    return (
+        f'<{tag} FOLDER_NAME="{name}">'
+        f'<JOB JOBNAME="GLX_RUN" APPLICATION="GLOBEX" TASKTYPE="Command" CMDLINE="{cmdline}" />'
+        f"</{tag}>"
+    )
+
+
+def _deftable(path, *folders):
+    path.write_text(
+        '<?xml version="1.0"?><DEFTABLE>' + "".join(folders) + "</DEFTABLE>",
+        encoding="utf-8",
+    )
+
+
+def test_controlm_matches_plain_folder(tmp_path):
+    """Exports that use <FOLDER> (not <SMART_FOLDER>) must still diff — the
+    original '0 units differences' symptom."""
+    a, b = tmp_path / "a.xml", tmp_path / "b.xml"
+    _deftable(a, _folder("FOLDER", "GLX_DAILY", "/opt/glx/run --mode=bench"))
+    _deftable(b, _folder("FOLDER", "GLX_DAILY", "/opt/glx/run --mode=prod"))
+    units = diff([str(a), str(b)], recipe="controlm").units
+    assert len(units) == 1
+    assert units[0].tag == "FOLDER" and units[0].ident == "GLX_DAILY"
+    assert any("CMDLINE" in lbl for lbl in _all_row_labels(units[0]))
+
+
+def test_controlm_matches_folder_and_smart_folder_in_one_run(tmp_path):
+    """Both unit tags are compared in the same run."""
+    a, b = tmp_path / "a.xml", tmp_path / "b.xml"
+    _deftable(
+        a,
+        _folder("FOLDER", "GLX_DAILY", "/opt/glx/run --mode=bench"),
+        _folder("SMART_FOLDER", "GLX_SMART", "/opt/glx/smart --mode=bench"),
+    )
+    _deftable(
+        b,
+        _folder("FOLDER", "GLX_DAILY", "/opt/glx/run --mode=prod"),
+        _folder("SMART_FOLDER", "GLX_SMART", "/opt/glx/smart --mode=prod"),
+    )
+    tags = {(u.tag, u.ident) for u in diff([str(a), str(b)], recipe="controlm").units}
+    assert tags == {("FOLDER", "GLX_DAILY"), ("SMART_FOLDER", "GLX_SMART")}
+
+
+def test_controlm_does_not_cross_match_folder_and_smart_folder(tmp_path):
+    """Conservative on purpose: the same FOLDER_NAME exported as <FOLDER> in one
+    file and <SMART_FOLDER> in another is NOT treated as the same unit, so it is
+    not compared. (Cross-tag matching would be a separate, riskier feature.)"""
+    a, b = tmp_path / "a.xml", tmp_path / "b.xml"
+    _deftable(a, _folder("FOLDER", "GLX_DAILY", "/opt/glx/run --x"))
+    _deftable(b, _folder("SMART_FOLDER", "GLX_DAILY", "/opt/glx/run --y"))
+    assert diff([str(a), str(b)], recipe="controlm").units == []
+
+
 def test_sitemap_text_and_namespace():
     """Sitemap: identity by <loc>, diffs in <lastmod>/<priority> text."""
     units = _units("sitemap", "sitemap")

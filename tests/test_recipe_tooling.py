@@ -16,6 +16,18 @@ def test_validate_catches_problems():
     assert any("JOB" in p and "key token" in p for p in problems)  # missing "@"
 
 
+def test_validate_unit_string_or_list():
+    """`defaults.unit` accepts a single tag or a list of tags."""
+
+    def check(unit):
+        return validate_recipe({"defaults": {"unit": unit}, "elements": {}})
+
+    assert check("FOLDER") == []
+    assert check(["FOLDER", "SMART_FOLDER"]) == []
+    for bad_unit in (123, [], ["FOLDER", ""], ["FOLDER", 1]):
+        assert any("unit" in p for p in check(bad_unit)), bad_unit
+
+
 def test_prompt_loads_and_has_placeholder():
     p = _prompt_text()
     assert "key mini-language" in p.lower()

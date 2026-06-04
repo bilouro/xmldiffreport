@@ -12,8 +12,11 @@
       "additionalProperties": false,
       "properties": {
         "unit": {
-          "type": "string",
-          "description": "Tag of the comparison unit. If omitted, the root's direct children are the units."
+          "description": "Tag of the comparison unit, or a list of tags (e.g. Control-M FOLDER and SMART_FOLDER). If omitted, the root's direct children are the units.",
+          "oneOf": [
+            { "type": "string" },
+            { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 }
+          ]
         },
         "unordered": {
           "type": "boolean",
