@@ -6,13 +6,15 @@
 [![Python](https://img.shields.io/pypi/pyversions/xmldiffreport.svg?cacheSeconds=3600)](https://pypi.org/project/xmldiffreport/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-📖 **Documentation: <https://bilouro.github.io/xmldiffreport/>** · [Português](https://bilouro.github.io/xmldiffreport/pt/)
+📖 Documentation: <https://bilouro.github.io/xmldiffreport/> · **English**<br>
+📖 Documentation: <https://bilouro.github.io/xmldiffreport/pt/> · **Português**
 
 **N-way structural & semantic XML diff that produces human-readable Markdown reports — driven by per-dialect recipes.**
 
-`xmldiffreport` compares **two or more** XML files at once and tells you *what
-actually changed*, element by element and attribute by attribute — not a noisy
-line-by-line text diff. It aligns elements by a **natural key** (not by
+`xmldiffreport` compares **two or more** XML files at once — **BMC Control-M**
+exports, **Maven** POMs, **JUnit/xUnit** reports, **sitemaps**, or any dialect you
+teach it with a small recipe — and tells you *what actually changed*, element by
+element and attribute by attribute, not a noisy line-by-line text diff. It aligns elements by a **natural key** (not by
 position), ignores **volatile attributes**, and renders a clean **Markdown
 report** with a summary table plus per-element detail.
 

@@ -32,9 +32,11 @@
 
 **Diff estrutural e semântico de XML, N-way, que produz relatórios em Markdown legíveis — guiado por recipes por dialecto.**
 
-O `xmldiffreport` compara **dois ou mais** ficheiros XML ao mesmo tempo e diz-te
-*o que mudou de facto* — elemento a elemento, atributo a atributo — em vez de um
-diff de texto linha-a-linha ruidoso. Alinha os elementos por uma **chave natural**
+O `xmldiffreport` compara **dois ou mais** ficheiros XML ao mesmo tempo — exports
+**BMC Control-M**, POMs **Maven**, relatórios **JUnit/xUnit**, **sitemaps**, ou
+qualquer dialecto que lhe ensines com uma recipe — e diz-te *o que mudou de
+facto*, elemento a elemento, atributo a atributo, em vez de um diff de texto
+linha-a-linha ruidoso. Alinha os elementos por uma **chave natural**
 (não pela posição), ignora **atributos voláteis** e escreve um **relatório
 Markdown** limpo.
 

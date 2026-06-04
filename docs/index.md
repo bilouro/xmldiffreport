@@ -31,9 +31,10 @@
 
 **N-way structural & semantic XML diff that produces human-readable Markdown reports — driven by per-dialect recipes.**
 
-`xmldiffreport` compares **two or more** XML files at once and tells you *what
-actually changed* — element by element, attribute by attribute — instead of a
-noisy line-by-line text diff. It aligns elements by a **natural key** (not by
+`xmldiffreport` compares **two or more** XML files at once — **BMC Control-M**
+exports, **Maven** POMs, **JUnit/xUnit** reports, **sitemaps**, or any dialect you
+teach it with a small recipe — and tells you *what actually changed*, element by
+element and attribute by attribute, instead of a noisy line-by-line text diff. It aligns elements by a **natural key** (not by
 position), ignores **volatile attributes**, and writes a clean **Markdown
 report**.
 
