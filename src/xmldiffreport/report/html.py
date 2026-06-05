@@ -24,6 +24,7 @@ code { background:#f6f8fa; padding:.05rem .3rem; border-radius:4px;
 .src { color:#586069; font-size:.85rem; }
 .absent { color:#b0b0b0; }
 ul.presence { margin:.3rem 0 1rem; } .sub { margin-left:1.2rem; }
+a { color:#0366d6; text-decoration:none; } a:hover { text-decoration:underline; }
 """.strip()
 
 
@@ -120,7 +121,7 @@ def _render(report: DiffReport) -> str:
         "<h2>Summary</h2><table><thead><tr><th>Unit</th>"
         "<th>Sources</th><th>Changes</th></tr></thead><tbody>"
     )
-    for nd in units:
+    for i, nd in enumerate(units, 1):
         chg = []
         if nd.rows:
             chg.append(f"own Δ{len(nd.rows)}")
@@ -129,7 +130,8 @@ def _render(report: DiffReport) -> str:
         if nd.child_diffs:
             chg.append(f"~ {len(nd.child_diffs)}")
         parts.append(
-            f"<tr><td><code>{escape(nd.ident)}</code> ({escape(nd.tag)})</td>"
+            f'<tr><td><a href="#unit-{i}"><code>{escape(nd.ident)}</code> '
+            f"({escape(nd.tag)})</a></td>"
             f"<td>{len(nd.sources)}</td><td>{escape(' · '.join(chg) or '—')}</td></tr>"
         )
     parts.append("</tbody></table>")
@@ -137,8 +139,8 @@ def _render(report: DiffReport) -> str:
     # detail
     disp = report.source_display
     parts.append("<h2>Detail</h2>")
-    for nd in units:
-        parts.append(f"<h3><code>{escape(nd.ident)}</code> ({escape(nd.tag)})</h3>")
+    for i, nd in enumerate(units, 1):
+        parts.append(f'<h3 id="unit-{i}"><code>{escape(nd.ident)}</code> ({escape(nd.tag)})</h3>')
         parts.append(
             '<p class="src">Sources: '
             + ", ".join(f"<code>{escape(disp[s])}</code>" for s in nd.sources)

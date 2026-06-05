@@ -79,7 +79,7 @@ def _render(report: DiffReport) -> str:
         return "\n".join(lines)
 
     lines += ["## Summary", "", "| Unit | Sources | Changes |", "|---|---|---|"]
-    for nd in units:
+    for i, nd in enumerate(units, 1):
         parts = []
         if nd.rows:
             parts.append(f"own Δ{len(nd.rows)}")
@@ -89,13 +89,16 @@ def _render(report: DiffReport) -> str:
             parts.append(f"~ {len(nd.child_diffs)}")
         ident = esc_pipe(nd.ident)
         changes = " · ".join(parts) or "—"
-        lines.append(f"| `{ident}` ({nd.tag}) | {len(nd.sources)} | {changes} |")
+        # link to the detail section below (explicit anchor, renderer-independent)
+        lines.append(f"| [`{ident}` ({nd.tag})](#unit-{i}) | {len(nd.sources)} | {changes} |")
     lines.append("")
 
     disp = report.source_display
     lines += ["## Detail", ""]
-    for nd in units:
+    for i, nd in enumerate(units, 1):
         lines += [
+            f'<a id="unit-{i}"></a>',
+            "",
             f"### `{nd.ident}` ({nd.tag})",
             "",
             "Sources: " + ", ".join(f"`{disp[s]}`" for s in nd.sources),

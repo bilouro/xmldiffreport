@@ -55,3 +55,20 @@ def test_sources_shown_as_dir_and_file_not_full_path():
         out = r.render(fmt)
         assert "bench/patch-a.xml" in out  # one directory + file name
         assert str(ROOT) not in out  # never the absolute path
+
+
+def test_summary_links_to_detail_anchors():
+    """Each summary row links to its detail section, which carries the anchor."""
+    r = _report()
+    n = len(r.units)
+    assert n >= 1
+
+    md = r.render("md")
+    for i in range(1, n + 1):
+        assert f"](#unit-{i})" in md  # summary link
+        assert f'<a id="unit-{i}"></a>' in md  # detail anchor
+
+    html = r.render("html")
+    for i in range(1, n + 1):
+        assert f'href="#unit-{i}"' in html  # summary link
+        assert f'id="unit-{i}"' in html  # detail anchor
