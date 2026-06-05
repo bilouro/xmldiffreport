@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-06-05
+
+### Added
+- Summary rows in the Markdown and HTML reports now link to the matching detail
+  section (stable `unit-N` anchors), so an impacted unit can be opened directly
+  from the summary instead of scrolling.
+
 ## [0.3.1] - 2026-06-05
 
 ### Added
