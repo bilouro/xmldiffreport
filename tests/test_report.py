@@ -139,6 +139,25 @@ def test_summary_no_total_row_at_or_below_five(tmp_path):
     assert "**Total**" not in md  # threshold is > 5 units
 
 
+def test_detail_status_column_outlier_and_presence_matrix():
+    """Detail tables gain a status column (≠/⊘/±), bold the lone outlier, mark
+    missing values as _absent_, and render presence-only elements as a matrix."""
+    r = _report()
+    md = r.render("md")
+    assert "| ≠ |" in md and "| ± |" in md and "| ⊘ |" in md  # status signs
+    assert "_absent_" in md  # a missing value, italic
+    assert "**`" in md  # an outlier value, bold + backtick-quoted
+    assert "| Element |" in md  # presence matrix header
+    assert "; missing from" not in md  # old free-text bullets removed
+
+    html = r.render("html")
+    assert '<td class="sign">' in html
+    assert 'class="outlier"' in html
+    assert '<span class="absent"><em>absent</em></span>' in html
+    assert '<td class="pc">' in html  # presence matrix cell
+    assert "missing from" not in html
+
+
 def test_summary_links_to_detail_anchors():
     """Each summary row links to its detail section, which carries the anchor."""
     r = _report()

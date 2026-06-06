@@ -19,6 +19,30 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import ClassVar
 
+from ..core import ABSENT
+
+# Per-row status signs shared by the renderers' detail tables.
+SIGN_CHANGED = "≠"  # present in every source, values differ
+SIGN_PARTIAL = "⊘"  # present in 2+ sources, absent in at least one
+SIGN_ONLY = "±"  # present in only one source
+
+
+def row_status(vals: dict, srcs: list[str]) -> tuple[str, str | None]:
+    """Status sign for a differing row, plus the lone *outlier* source to
+    highlight — set only when exactly one source diverges from a value shared
+    by all the others (in an otherwise all-present ``≠`` row)."""
+    present = [s for s in srcs if vals[s] != ABSENT]
+    if len(present) <= 1:
+        return SIGN_ONLY, None
+    if len(present) < len(srcs):
+        return SIGN_PARTIAL, None
+    groups: dict[str, list[str]] = {}
+    for s in srcs:
+        groups.setdefault(vals[s], []).append(s)
+    singles = [ss for ss in groups.values() if len(ss) == 1]
+    outlier = singles[0][0] if len(groups) == 2 and len(singles) == 1 else None
+    return SIGN_CHANGED, outlier
+
 
 def display_names(labels: list[str]) -> dict[str, str]:
     """Map each source label (a file path) to a compact display name.

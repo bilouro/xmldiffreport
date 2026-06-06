@@ -4,8 +4,18 @@ from __future__ import annotations
 
 from html import escape
 
-from ..core import NodeDiff
-from .base import DiffReport, Renderer, register
+from ..core import ABSENT, NodeDiff
+from .base import (
+    SIGN_CHANGED,
+    SIGN_ONLY,
+    SIGN_PARTIAL,
+    DiffReport,
+    Renderer,
+    register,
+    row_status,
+)
+
+_SIGN_CLASS = {SIGN_CHANGED: "changed", SIGN_PARTIAL: "partial", SIGN_ONLY: "only"}
 
 _CSS = """
 :root { --line:#e1e4e8; }
@@ -26,14 +36,12 @@ code { background:#f6f8fa; padding:.05rem .3rem; border-radius:4px;
 ul.presence { margin:.3rem 0 1rem; } .sub { margin-left:1.2rem; }
 a { color:#0366d6; text-decoration:none; } a:hover { text-decoration:underline; }
 td.num, th.num { text-align:right; } tfoot td { font-weight:600; border-top:2px solid #d0d7de; }
+td.sign { text-align:center; font-weight:600; } td.pc { text-align:center; }
+tr.changed { background:#fffbe6; } tr.changed td.sign { color:#9a6700; }
+tr.partial { background:#fff4e6; } tr.partial td.sign { color:#bc4c00; }
+tr.only { background:#eef4ff; } tr.only td.sign { color:#0550ae; }
+.outlier code { color:#cf222e; } .absent em { font-style:italic; }
 """.strip()
-
-
-def _cell(v: str) -> str:
-    s = " ".join(str(v).split())
-    if s in ("", "−"):
-        return '<span class="absent">−</span>'
-    return escape(s)
 
 
 def _num(n: int) -> str:
@@ -42,12 +50,38 @@ def _num(n: int) -> str:
     return str(n) if n else "–"
 
 
-def _table(header: str, rows: list, srcs: list[str], cols: dict[str, str]) -> str:
-    head = "".join(f"<th>{escape(h)}</th>" for h in [header, *(cols[s] for s in srcs)])
+def _value_html(v: str, outlier: bool) -> str:
+    """A value cell: ``<code>`` quoted, italic ``absent`` when missing, and the
+    diverging value emphasised when it is the outlier."""
+    if v == ABSENT:
+        return '<span class="absent"><em>absent</em></span>'
+    s = " ".join(str(v).split())
+    inner = f"<code>{escape(s)}</code>"
+    return f'<strong class="outlier">{inner}</strong>' if outlier else inner
+
+
+def _diff_table(rows: list, srcs: list[str], cols: dict[str, str]) -> str:
+    """Detail table: status column, element/attribute, one column per env."""
+    cells = ["", "Element / attribute", *(cols[s] for s in srcs)]
+    head = "".join(f"<th>{escape(h)}</th>" for h in cells)
     body = []
     for label, vals in rows:
-        cells = "".join(f"<td>{_cell(vals[s])}</td>" for s in srcs)
-        body.append(f"<tr><td>{_label(label)}</td>{cells}</tr>")
+        sign, outlier = row_status(vals, srcs)
+        cls = _SIGN_CLASS.get(sign, "")
+        vcells = "".join(f"<td>{_value_html(vals[s], s == outlier)}</td>" for s in srcs)
+        body.append(
+            f'<tr class="{cls}"><td class="sign">{sign}</td><td>{_label(label)}</td>{vcells}</tr>'
+        )
+    return f"<table><thead><tr>{head}</tr></thead><tbody>{''.join(body)}</tbody></table>"
+
+
+def _presence_matrix(children: list, srcs: list[str], cols: dict[str, str]) -> str:
+    """Presence-only elements as a ✓ / — matrix instead of a bullet list."""
+    head = "".join(f"<th>{escape(h)}</th>" for h in ["Element", *(cols[s] for s in srcs)])
+    body = []
+    for ctag, cid, present in children:
+        marks = "".join(f'<td class="pc">{"✓" if present[s] else "—"}</td>' for s in srcs)
+        body.append(f"<tr><td>{escape(ctag)} <code>{escape(cid)}</code></td>{marks}</tr>")
     return f"<table><thead><tr>{head}</tr></thead><tbody>{''.join(body)}</tbody></table>"
 
 
@@ -68,7 +102,7 @@ def _node(nd: NodeDiff, srcs: list[str], depth: int, cols: dict[str, str]) -> li
     if nd.rows:
         head = f"Level {escape(nd.tag)}" if depth == 0 else "Attributes"
         out.append(f"<p><strong>{head}:</strong></p>")
-        out.append(_table("Element / attribute", nd.rows, srcs, cols))
+        out.append(_diff_table(nd.rows, srcs, cols))
 
     total = nd.identical + len(nd.presence_children) + len(nd.child_diffs)
     if total:
@@ -80,15 +114,8 @@ def _node(nd: NodeDiff, srcs: list[str], depth: int, cols: dict[str, str]) -> li
         out.append(f"<p>{s}</p>")
 
     if nd.presence_children:
-        out.append('<ul class="presence">')
-        for ctag, cid, present in nd.presence_children:
-            has = ", ".join(f"<code>{escape(cols[s])}</code>" for s in srcs if present[s])
-            missing = ", ".join(f"<code>{escape(cols[s])}</code>" for s in srcs if not present[s])
-            out.append(
-                f"<li><strong>± {escape(ctag)} <code>{escape(cid)}</code></strong>"
-                f" — in {has}; missing from {missing}</li>"
-            )
-        out.append("</ul>")
+        out.append("<p><strong>Presence:</strong></p>")
+        out.append(_presence_matrix(nd.presence_children, srcs, cols))
 
     for child in nd.child_diffs:
         out.append(

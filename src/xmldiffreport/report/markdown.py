@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-from ..core import NodeDiff
-from .base import DiffReport, Renderer, register
+from ..core import ABSENT, NodeDiff
+from .base import DiffReport, Renderer, register, row_status
 
 
-def md_cell(v: str) -> str:
-    # Collapse whitespace (a newline would break the table row) and escape pipes;
-    # never truncate — the cell holds the value being compared, so keep it whole.
-    v = " ".join(str(v).split()).replace("|", "\\|")
-    return v or "−"
+def _value_cell(v: str, outlier: bool) -> str:
+    """A value cell in a detail table: backtick-quoted (to preserve whitespace),
+    italic ``_absent_`` when the element is missing, bold when it is the outlier."""
+    if v == ABSENT:
+        return "_absent_"
+    val = " ".join(str(v).split()).replace("|", "\\|")
+    cell = f"`{val or ' '}`"
+    return f"**{cell}**" if outlier else cell
 
 
 def _num(n: int) -> str:
@@ -26,11 +29,27 @@ def esc_pipe(label: str) -> str:
     return label.replace("|", "\\|")
 
 
-def _table(label_header: str, rows: list, srcs: list[str], cols: dict[str, str]) -> list[str]:
-    head = [label_header, *(cols[s] for s in srcs)]
-    out = ["| " + " | ".join(head) + " |", "|" + "|".join(["---"] * len(head)) + "|"]
+def _diff_table(rows: list, srcs: list[str], cols: dict[str, str]) -> list[str]:
+    """Detail table: a status column, the element/attribute, then one value
+    column per environment."""
+    head = ["", "Element / attribute", *(cols[s] for s in srcs)]
+    sep = "|" + "|".join([":-:", "---", *(["---"] * len(srcs))]) + "|"
+    out = ["| " + " | ".join(head) + " |", sep]
     for label, vals in rows:
-        out.append("| " + " | ".join([esc_pipe(label), *(md_cell(vals[s]) for s in srcs)]) + " |")
+        sign, outlier = row_status(vals, srcs)
+        cells = [_value_cell(vals[s], s == outlier) for s in srcs]
+        out.append("| " + " | ".join([sign, esc_pipe(label), *cells]) + " |")
+    return out
+
+
+def _presence_matrix(children: list, srcs: list[str], cols: dict[str, str]) -> list[str]:
+    """Presence-only elements as a matrix (✓ present / — absent), one row per
+    element — replaces the old free-text bullet list."""
+    out = ["| Element | " + " | ".join(cols[s] for s in srcs) + " |"]
+    out.append("|---|" + "|".join([":-:"] * len(srcs)) + "|")
+    for ctag, cid, present in children:
+        cells = ["✓" if present[s] else "—" for s in srcs]
+        out.append(f"| {ctag} `{esc_pipe(cid)}` | " + " | ".join(cells) + " |")
     return out
 
 
@@ -41,7 +60,7 @@ def _render_node(nd: NodeDiff, srcs: list[str], depth: int, cols: dict[str, str]
     if nd.rows:
         head = f"Level `{nd.tag}`" if depth == 0 else "Attributes"
         out += [f"{bullet}**{head}:**", ""]
-        out += _table("Element / attribute", nd.rows, srcs, cols)
+        out += _diff_table(nd.rows, srcs, cols)
         out.append("")
 
     total_children = nd.identical + len(nd.presence_children) + len(nd.child_diffs)
@@ -53,16 +72,9 @@ def _render_node(nd: NodeDiff, srcs: list[str], depth: int, cols: dict[str, str]
             summary += f" · {len(nd.presence_children)} presence-only"
         out += [summary, ""]
 
-    for ctag, cid, present in nd.presence_children:
-        has = [s for s in srcs if present[s]]
-        missing = [s for s in srcs if not present[s]]
-        out.append(
-            f"{bullet}- **± {ctag} `{cid}`** — in "
-            + ", ".join(f"`{cols[s]}`" for s in has)
-            + "; missing from "
-            + ", ".join(f"`{cols[s]}`" for s in missing)
-        )
     if nd.presence_children:
+        out += [f"{bullet}**Presence:**", ""]
+        out += _presence_matrix(nd.presence_children, srcs, cols)
         out.append("")
 
     for child in nd.child_diffs:
