@@ -86,6 +86,18 @@ def test_top_sources_block_and_env_labels(tmp_path):
         assert f"<code>{e}</code>" in html
 
 
+def test_diff_table_uses_env_columns_and_slash_header(tmp_path):
+    """Diff tables use short env names as columns and `Element / attribute`."""
+    r = diff(_envs(tmp_path), recipe="controlm")
+    md = r.render("md")
+    assert "| Element / attribute | bench | prod | uat |" in md
+    assert "Element · attribute" not in md  # the middle-dot header is gone
+
+    html = r.render("html")
+    assert "<th>Element / attribute</th>" in html
+    assert "<th>bench</th>" in html and "<th>prod</th>" in html
+
+
 def test_summary_links_to_detail_anchors():
     """Each summary row links to its detail section, which carries the anchor."""
     r = _report()

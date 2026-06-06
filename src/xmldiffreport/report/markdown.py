@@ -20,22 +20,22 @@ def esc_pipe(label: str) -> str:
     return label.replace("|", "\\|")
 
 
-def _table(label_header: str, rows: list, srcs: list[str], disp: dict[str, str]) -> list[str]:
-    head = [label_header, *(disp[s] for s in srcs)]
+def _table(label_header: str, rows: list, srcs: list[str], cols: dict[str, str]) -> list[str]:
+    head = [label_header, *(cols[s] for s in srcs)]
     out = ["| " + " | ".join(head) + " |", "|" + "|".join(["---"] * len(head)) + "|"]
     for label, vals in rows:
         out.append("| " + " | ".join([esc_pipe(label), *(md_cell(vals[s]) for s in srcs)]) + " |")
     return out
 
 
-def _render_node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]) -> list[str]:
+def _render_node(nd: NodeDiff, srcs: list[str], depth: int, cols: dict[str, str]) -> list[str]:
     out: list[str] = []
     bullet = "  " * depth
 
     if nd.rows:
         head = f"Level `{nd.tag}`" if depth == 0 else "Attributes"
         out += [f"{bullet}**{head}:**", ""]
-        out += _table("Element · attribute", nd.rows, srcs, disp)
+        out += _table("Element / attribute", nd.rows, srcs, cols)
         out.append("")
 
     total_children = nd.identical + len(nd.presence_children) + len(nd.child_diffs)
@@ -52,16 +52,16 @@ def _render_node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]
         missing = [s for s in srcs if not present[s]]
         out.append(
             f"{bullet}- **± {ctag} `{cid}`** — in "
-            + ", ".join(f"`{disp[s]}`" for s in has)
+            + ", ".join(f"`{cols[s]}`" for s in has)
             + "; missing from "
-            + ", ".join(f"`{disp[s]}`" for s in missing)
+            + ", ".join(f"`{cols[s]}`" for s in missing)
         )
     if nd.presence_children:
         out.append("")
 
     for child in nd.child_diffs:
         out += [f"{bullet}**~ {child.tag} `{child.ident}`**", ""]
-        out += _render_node(child, srcs, depth + 1, disp)
+        out += _render_node(child, srcs, depth + 1, cols)
     return out
 
 
@@ -111,7 +111,7 @@ def _render(report: DiffReport) -> str:
             "**Sources:** " + ", ".join(f"`{env[s]}`" for s in nd.sources),
             "",
         ]
-        lines += _render_node(nd, nd.sources, 0, disp)
+        lines += _render_node(nd, nd.sources, 0, env)
     return "\n".join(lines)
 
 

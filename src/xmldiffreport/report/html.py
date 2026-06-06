@@ -35,8 +35,8 @@ def _cell(v: str) -> str:
     return escape(s)
 
 
-def _table(header: str, rows: list, srcs: list[str], disp: dict[str, str]) -> str:
-    head = "".join(f"<th>{escape(h)}</th>" for h in [header, *(disp[s] for s in srcs)])
+def _table(header: str, rows: list, srcs: list[str], cols: dict[str, str]) -> str:
+    head = "".join(f"<th>{escape(h)}</th>" for h in [header, *(cols[s] for s in srcs)])
     body = []
     for label, vals in rows:
         cells = "".join(f"<td>{_cell(vals[s])}</td>" for s in srcs)
@@ -53,7 +53,7 @@ def _label(label: str) -> str:
     return "".join(out)
 
 
-def _node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]) -> list[str]:
+def _node(nd: NodeDiff, srcs: list[str], depth: int, cols: dict[str, str]) -> list[str]:
     out: list[str] = []
     cls = "sub" if depth else ""
     out.append(f'<div class="{cls}">' if cls else "<div>")
@@ -61,7 +61,7 @@ def _node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]) -> li
     if nd.rows:
         head = f"Level {escape(nd.tag)}" if depth == 0 else "Attributes"
         out.append(f"<p><strong>{head}:</strong></p>")
-        out.append(_table("Element · attribute", nd.rows, srcs, disp))
+        out.append(_table("Element / attribute", nd.rows, srcs, cols))
 
     total = nd.identical + len(nd.presence_children) + len(nd.child_diffs)
     if total:
@@ -75,8 +75,8 @@ def _node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]) -> li
     if nd.presence_children:
         out.append('<ul class="presence">')
         for ctag, cid, present in nd.presence_children:
-            has = ", ".join(f"<code>{escape(disp[s])}</code>" for s in srcs if present[s])
-            missing = ", ".join(f"<code>{escape(disp[s])}</code>" for s in srcs if not present[s])
+            has = ", ".join(f"<code>{escape(cols[s])}</code>" for s in srcs if present[s])
+            missing = ", ".join(f"<code>{escape(cols[s])}</code>" for s in srcs if not present[s])
             out.append(
                 f"<li><strong>± {escape(ctag)} <code>{escape(cid)}</code></strong>"
                 f" — in {has}; missing from {missing}</li>"
@@ -87,7 +87,7 @@ def _node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]) -> li
         out.append(
             f"<p><strong>~ {escape(child.tag)} <code>{escape(child.ident)}</code></strong></p>"
         )
-        out += _node(child, srcs, depth + 1, disp)
+        out += _node(child, srcs, depth + 1, cols)
 
     out.append("</div>")
     return out
@@ -153,7 +153,7 @@ def _render(report: DiffReport) -> str:
             + ", ".join(f"<code>{escape(env[s])}</code>" for s in nd.sources)
             + "</p>"
         )
-        parts += _node(nd, nd.sources, 0, disp)
+        parts += _node(nd, nd.sources, 0, env)
 
     parts.append("</body></html>")
     return "".join(parts)
