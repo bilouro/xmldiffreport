@@ -42,6 +42,8 @@ jobs:
       # sitemap under a second name so it can be submitted as a fresh entry,
       # bypassing the stuck "Couldn't fetch" state on sitemap.xml.
       - run: cp site/sitemap.xml site/sitemap_index.xml
+      # Custom domain for GitHub Pages (kept in the artifact so it survives every deploy).
+      - run: echo "xmldiffreport.bilouro.com" > site/CNAME
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
