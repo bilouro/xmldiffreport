@@ -34,6 +34,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libcairo2-dev libfreetype6-dev
       - run: pip install -e ".[docs]"
       - run: mkdocs build --strict
+      # Disable Jekyll processing on GitHub Pages. Without this, Googlebot reads
+      # the sitemap through Jekyll's wrapper and Search Console reports
+      # "Couldn't fetch" even though the file is served correctly (200/XML).
+      - run: touch site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
