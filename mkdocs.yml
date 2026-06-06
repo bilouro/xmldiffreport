@@ -1,5 +1,5 @@
 site_name: xmldiffreport
-site_url: https://bilouro.github.io/xmldiffreport/
+site_url: https://xmldiffreport.bilouro.com/
 site_description: >-
   N-way structural & semantic XML diff that produces human-readable Markdown
   reports, driven by per-dialect recipes (Control-M, sitemaps, and more).

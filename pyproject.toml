@@ -48,7 +48,7 @@ docs = [
 
 [project.urls]
 Homepage = "https://github.com/bilouro/xmldiffreport"
-Documentation = "https://bilouro.github.io/xmldiffreport/"
+Documentation = "https://xmldiffreport.bilouro.com/"
 Repository = "https://github.com/bilouro/xmldiffreport"
 Issues = "https://github.com/bilouro/xmldiffreport/issues"
 Changelog = "https://github.com/bilouro/xmldiffreport/blob/main/CHANGELOG.md"

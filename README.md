@@ -1,13 +1,13 @@
 # xmldiffreport
 
-[![Docs](https://img.shields.io/badge/docs-bilouro.github.io-blue)](https://bilouro.github.io/xmldiffreport/)
+[![Docs](https://img.shields.io/badge/docs-xmldiffreport.bilouro.com-blue)](https://xmldiffreport.bilouro.com/)
 [![CI](https://github.com/bilouro/xmldiffreport/actions/workflows/ci.yml/badge.svg)](https://github.com/bilouro/xmldiffreport/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/xmldiffreport.svg?cacheSeconds=3600)](https://pypi.org/project/xmldiffreport/)
 [![Python](https://img.shields.io/pypi/pyversions/xmldiffreport.svg?cacheSeconds=3600)](https://pypi.org/project/xmldiffreport/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-📖 Documentation: <https://bilouro.github.io/xmldiffreport/> · **English**<br>
-📖 Documentation: <https://bilouro.github.io/xmldiffreport/pt/> · **Português**
+📖 Documentation: <https://xmldiffreport.bilouro.com/> · **English**<br>
+📖 Documentation: <https://xmldiffreport.bilouro.com/pt/> · **Português**
 
 **N-way structural & semantic XML diff that produces human-readable Markdown reports — driven by per-dialect recipes.**
 
@@ -51,7 +51,7 @@ report-first comparison (e.g. "the same folder in uat, bench and prod"); reach
 for `xmldiff` to produce a **patch/edit script**, DiffDog/Oxygen for **interactive
 2-way merging**, DeltaXML for **heuristic matching of keyless documents**, and
 `git diff` for **raw line changes** on already-normalized XML. Full breakdown:
-[How it compares](https://bilouro.github.io/xmldiffreport/comparison/).
+[How it compares](https://xmldiffreport.bilouro.com/comparison/).
 
 ---
 
@@ -101,8 +101,8 @@ position) and ignoring volatile attributes. Built-ins: `controlm`, `maven-pom`, 
 xmldiffreport old.xml new.xml --recipe sitemap -o report.md
 ```
 
-→ [Writing recipes](https://bilouro.github.io/xmldiffreport/guide/recipes/) ·
-[generate one from your XML with an LLM](https://bilouro.github.io/xmldiffreport/guide/recipe-from-llm/).
+→ [Writing recipes](https://xmldiffreport.bilouro.com/guide/recipes/) ·
+[generate one from your XML with an LLM](https://xmldiffreport.bilouro.com/guide/recipe-from-llm/).
 
 ### Comparing many files (or whole directories)
 
@@ -120,7 +120,7 @@ only one file is ignored. The tool has **no notion of "environments"** — if it
 matters which file is production, name it so.
 
 → Full, worked guide with directory trees and a complete example:
-**[Inputs & file layout](https://bilouro.github.io/xmldiffreport/guide/inputs/)**.
+**[Inputs & file layout](https://xmldiffreport.bilouro.com/guide/inputs/)**.
 
 ---
 
@@ -208,7 +208,7 @@ xmldiffreport-recipe validate my-dialect.toml           # check the result (ship
 xmldiffreport-recipe show controlm                      # print a built-in recipe to learn from
 ```
 
-See [Generate a recipe with an LLM](https://bilouro.github.io/xmldiffreport/guide/recipe-from-llm/).
+See [Generate a recipe with an LLM](https://xmldiffreport.bilouro.com/guide/recipe-from-llm/).
 
 ---
 

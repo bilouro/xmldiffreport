@@ -12,7 +12,7 @@
   "programmingLanguage": "Python",
   "softwareVersion": "0.4.0",
   "license": "https://opensource.org/licenses/MIT",
-  "url": "https://bilouro.github.io/xmldiffreport/pt/",
+  "url": "https://xmldiffreport.bilouro.com/pt/",
   "downloadUrl": "https://pypi.org/project/xmldiffreport/",
   "codeRepository": "https://github.com/bilouro/xmldiffreport",
   "inLanguage": "pt",

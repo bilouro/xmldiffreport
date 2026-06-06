@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://bilouro.github.io/xmldiffreport/recipe.schema.json",
+  "$id": "https://xmldiffreport.bilouro.com/recipe.schema.json",
   "title": "xmldiffreport recipe",
   "description": "Schema for the parsed form of an xmldiffreport recipe (.toml). Validates the dict produced by tomllib.",
   "type": "object",

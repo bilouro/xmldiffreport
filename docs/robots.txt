@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bilouro.github.io/xmldiffreport/sitemap.xml
+Sitemap: https://xmldiffreport.bilouro.com/sitemap.xml

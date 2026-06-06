@@ -12,7 +12,7 @@
   "programmingLanguage": "Python",
   "softwareVersion": "0.4.0",
   "license": "https://opensource.org/licenses/MIT",
-  "url": "https://bilouro.github.io/xmldiffreport/",
+  "url": "https://xmldiffreport.bilouro.com/",
   "downloadUrl": "https://pypi.org/project/xmldiffreport/",
   "codeRepository": "https://github.com/bilouro/xmldiffreport",
   "description": "N-way structural and semantic XML diff that produces human-readable Markdown and HTML reports, driven by per-dialect recipes (Control-M, sitemaps, and more).",
