@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-06
+
+### Changed
+- Documentation now lives at the custom domain **https://xmldiffreport.bilouro.com/**
+  (the old `bilouro.github.io/xmldiffreport/` URL 301-redirects). Project metadata
+  was updated to match: the PyPI `Documentation` link and the recipe schema `$id`.
+
 ## [0.4.0] - 2026-06-06
 
 The report output was redesigned for readability. **This changes the Markdown

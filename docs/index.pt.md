@@ -10,7 +10,7 @@
   "applicationSubCategory": "Ferramenta de diff/comparação de XML",
   "operatingSystem": "Cross-platform",
   "programmingLanguage": "Python",
-  "softwareVersion": "0.4.0",
+  "softwareVersion": "0.4.1",
   "license": "https://opensource.org/licenses/MIT",
   "url": "https://xmldiffreport.bilouro.com/pt/",
   "downloadUrl": "https://pypi.org/project/xmldiffreport/",
