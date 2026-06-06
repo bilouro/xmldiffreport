@@ -38,10 +38,33 @@ unit present in **2 or more sources**, the engine walks the tree recursively:
 Because elements are matched by identity, a change *inside* an element is shown
 as an attribute change, not as a delete + add:
 
-| Element · attribute | bench | uat | prod |
-|---|---|---|---|
-| INCOND `…STAGE-…LOAD_OK` · `AND_OR` | A | O | A |
-| OUTCOND `…LOAD-…POST_OK` · `SIGN` | - | + | + |
+|   | Element / attribute | bench | uat | prod |
+|:-:|---|---|---|---|
+| ≠ | INCOND `…STAGE-…LOAD_OK` · `AND_OR` | `A` | **`O`** | `A` |
+| ≠ | OUTCOND `…LOAD-…POST_OK` · `SIGN` | **`-`** | `+` | `+` |
+
+## Reading the report
+
+The Markdown and HTML reports share one structure:
+
+- A top **Sources** block maps each short environment label — the parent
+  directory, e.g. `bench` — to its full file path, listed once. The tables then
+  use the short labels as columns so they stay narrow.
+- The **Summary** has one column per change type — **Own** (the unit's own
+  attribute/text diffs), **Presence** (children in some sources but not others)
+  and **Changed** (changed sub-units) — plus a **Total** row once there are more
+  than five units. Each row links to its detail section.
+- Every **detail** row opens with a status sign:
+
+|   | Meaning |
+|:-:|---|
+| `≠` | present in every source, values differ |
+| `⊘` | present in some sources, absent in at least one |
+| `±` | present in only one source |
+
+The lone diverging value in a `≠` row is highlighted (bold in Markdown, red in
+HTML); a missing value shows as _absent_. Presence-only children are listed as a
+✓ / — matrix rather than free text.
 
 ## Volatile attributes are ignored
 
@@ -56,7 +79,8 @@ The engine reports **differences** — every unit present in 2+ sources that isn
 identical. It deliberately stays out of your domain: it does **not** classify
 those differences (e.g. "conflict" vs "informational"). If that distinction
 matters to your workflow, derive it yourself from the result — you know which
-file is which (the report labels each by its path).
+source is which (each column is labelled by its environment, and the full paths
+are listed once in the top Sources block).
 
 ## Namespaces & text
 

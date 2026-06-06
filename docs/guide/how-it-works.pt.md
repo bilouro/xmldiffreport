@@ -38,10 +38,33 @@ presente em **2 ou mais fontes**, o motor percorre a árvore recursivamente:
 Como os elementos são casados por identidade, uma mudança *dentro* de um elemento
 aparece como mudança de atributo, e não como remoção + adição:
 
-| Element · attribute | bench | uat | prod |
-|---|---|---|---|
-| INCOND `…STAGE-…LOAD_OK` · `AND_OR` | A | O | A |
-| OUTCOND `…LOAD-…POST_OK` · `SIGN` | - | + | + |
+|   | Element / attribute | bench | uat | prod |
+|:-:|---|---|---|---|
+| ≠ | INCOND `…STAGE-…LOAD_OK` · `AND_OR` | `A` | **`O`** | `A` |
+| ≠ | OUTCOND `…LOAD-…POST_OK` · `SIGN` | **`-`** | `+` | `+` |
+
+## Ler o relatório
+
+Os relatórios Markdown e HTML partilham a mesma estrutura:
+
+- Um bloco **Sources** no topo mapeia cada label curto de ambiente — o diretório
+  pai, ex. `bench` — para o caminho completo do ficheiro, listado uma só vez. As
+  tabelas usam depois os labels curtos como colunas, para se manterem estreitas.
+- O **Summary** tem uma coluna por tipo de mudança — **Own** (diffs de atributo/
+  texto da própria unidade), **Presence** (filhos em algumas fontes mas não
+  noutras) e **Changed** (sub-unidades alteradas) — mais uma linha **Total**
+  quando há mais de cinco unidades. Cada linha liga à sua secção de detalhe.
+- Cada linha de **detalhe** começa com um sinal de estado:
+
+|   | Significado |
+|:-:|---|
+| `≠` | presente em todas as fontes, valores diferem |
+| `⊘` | presente nalgumas fontes, ausente em pelo menos uma |
+| `±` | presente em apenas uma fonte |
+
+O valor isolado que diverge numa linha `≠` é destacado (negrito no Markdown,
+vermelho no HTML); um valor em falta aparece como _absent_. Os filhos só-presença
+surgem como uma matriz ✓ / — em vez de texto livre.
 
 ## Atributos voláteis são ignorados
 
@@ -54,8 +77,8 @@ recipe e nunca geram linha. É isto que torna o diff *semântico* em vez de ruid
 O motor reporta **diferenças** — cada unidade presente em 2+ fontes que não seja
 idêntica. Não entra no teu domínio: **não** classifica essas diferenças (ex.
 "conflito" vs "informativo"). Se essa distinção importa no teu fluxo, deriva-a tu
-a partir do resultado — sabes qual ficheiro é qual (o relatório rotula cada um
-pelo caminho).
+a partir do resultado — sabes qual fonte é qual (cada coluna é rotulada pelo seu
+ambiente, e os caminhos completos são listados uma vez no bloco Sources do topo).
 
 ## Namespaces e texto
 

@@ -49,8 +49,9 @@ diferenças.
    `prod/`) e listas essas pastas em `inputs`.
 3. Corres o `collect.py` antes de promover um patch.
 4. O relatório mostra cada folder que aparece em 2+ ficheiros e difere, uma coluna
-   por ficheiro. Sabes qual ficheiro é qual (cada coluna é o caminho), por isso
-   decides o que é uma colisão a bloquear e o que é esperado.
+   por ambiente (o label do diretório pai — os caminhos completos são listados uma
+   vez no bloco Sources do topo). Sabes qual fonte é qual, por isso decides o que é
+   uma colisão a bloquear e o que é esperado.
 
 ## Privacidade
 

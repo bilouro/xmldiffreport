@@ -49,8 +49,9 @@ differs.
    `prod/`), and list those folders in `inputs`.
 3. Run `collect.py` before promoting a patch.
 4. The report shows every folder that appears in 2+ files and differs, one column
-   per file. You know which file is which (each column is the file path), so you
-   decide what's a collision worth blocking and what's expected.
+   per environment (the parent-directory label — full paths are listed once in the
+   top Sources block). You know which source is which, so you decide what's a
+   collision worth blocking and what's expected.
 
 ## Privacy
 
