@@ -13,6 +13,12 @@ def md_cell(v: str) -> str:
     return v or "−"
 
 
+def _num(n: int) -> str:
+    """A count for the summary: the number, or en-dash when this kind of change
+    does not apply to the row (distinct from a real ``0``)."""
+    return str(n) if n else "–"
+
+
 def esc_pipe(label: str) -> str:
     """Escape pipes so a composite identity (e.g. ``classname|name``) does not
     split a Markdown table cell. GitHub renders ``\\|`` as a literal ``|`` even
@@ -86,19 +92,29 @@ def _render(report: DiffReport) -> str:
         lines += ["No shared unit with differences. **Nothing to report.**", ""]
         return "\n".join(lines)
 
-    lines += ["## Summary", "", "| Unit | Sources | Changes |", "|---|---|---|"]
+    lines += [
+        "## Summary",
+        "",
+        "| Unit | Sources | Own | Presence | Changed |",
+        "|---|---:|---:|---:|---:|",
+    ]
+    tot_src = tot_own = tot_pres = tot_chg = 0
     for i, nd in enumerate(units, 1):
-        parts = []
-        if nd.rows:
-            parts.append(f"own Δ{len(nd.rows)}")
-        if nd.presence_children:
-            parts.append(f"± {len(nd.presence_children)}")
-        if nd.child_diffs:
-            parts.append(f"~ {len(nd.child_diffs)}")
+        own, pres, chg = len(nd.rows), len(nd.presence_children), len(nd.child_diffs)
+        tot_src += len(nd.sources)
+        tot_own += own
+        tot_pres += pres
+        tot_chg += chg
         ident = esc_pipe(nd.ident)
-        changes = " · ".join(parts) or "—"
-        # link to the detail section below (explicit anchor, renderer-independent)
-        lines.append(f"| [`{ident}` ({nd.tag})](#unit-{i}) | {len(nd.sources)} | {changes} |")
+        # the Unit cell links to the detail section below (explicit anchor)
+        lines.append(
+            f"| [`{ident}` ({nd.tag})](#unit-{i}) | {len(nd.sources)} "
+            f"| {_num(own)} | {_num(pres)} | {_num(chg)} |"
+        )
+    if len(units) > 5:
+        lines.append(
+            f"| **Total** | **{tot_src}** | {_num(tot_own)} | {_num(tot_pres)} | {_num(tot_chg)} |"
+        )
     lines.append("")
 
     lines += ["## Detail", ""]

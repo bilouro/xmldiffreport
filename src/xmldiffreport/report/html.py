@@ -25,6 +25,7 @@ code { background:#f6f8fa; padding:.05rem .3rem; border-radius:4px;
 .absent { color:#b0b0b0; }
 ul.presence { margin:.3rem 0 1rem; } .sub { margin-left:1.2rem; }
 a { color:#0366d6; text-decoration:none; } a:hover { text-decoration:underline; }
+td.num, th.num { text-align:right; } tfoot td { font-weight:600; border-top:2px solid #d0d7de; }
 """.strip()
 
 
@@ -33,6 +34,12 @@ def _cell(v: str) -> str:
     if s in ("", "−"):
         return '<span class="absent">−</span>'
     return escape(s)
+
+
+def _num(n: int) -> str:
+    """A summary count: the number, or en-dash when this kind of change does not
+    apply to the row (distinct from a real ``0``)."""
+    return str(n) if n else "–"
 
 
 def _table(header: str, rows: list, srcs: list[str], cols: dict[str, str]) -> str:
@@ -124,25 +131,37 @@ def _render(report: DiffReport) -> str:
         )
         return "".join(parts)
 
-    # summary
+    # summary — one column per change type
     parts.append(
         "<h2>Summary</h2><table><thead><tr><th>Unit</th>"
-        "<th>Sources</th><th>Changes</th></tr></thead><tbody>"
+        '<th class="num">Sources</th><th class="num">Own</th>'
+        '<th class="num">Presence</th><th class="num">Changed</th></tr></thead><tbody>'
     )
+    tot_src = tot_own = tot_pres = tot_chg = 0
     for i, nd in enumerate(units, 1):
-        chg = []
-        if nd.rows:
-            chg.append(f"own Δ{len(nd.rows)}")
-        if nd.presence_children:
-            chg.append(f"± {len(nd.presence_children)}")
-        if nd.child_diffs:
-            chg.append(f"~ {len(nd.child_diffs)}")
+        own, pres, chg = len(nd.rows), len(nd.presence_children), len(nd.child_diffs)
+        tot_src += len(nd.sources)
+        tot_own += own
+        tot_pres += pres
+        tot_chg += chg
         parts.append(
             f'<tr><td><a href="#unit-{i}"><code>{escape(nd.ident)}</code> '
             f"({escape(nd.tag)})</a></td>"
-            f"<td>{len(nd.sources)}</td><td>{escape(' · '.join(chg) or '—')}</td></tr>"
+            f'<td class="num">{len(nd.sources)}</td>'
+            f'<td class="num">{_num(own)}</td>'
+            f'<td class="num">{_num(pres)}</td>'
+            f'<td class="num">{_num(chg)}</td></tr>'
         )
-    parts.append("</tbody></table>")
+    parts.append("</tbody>")
+    if len(units) > 5:
+        parts.append(
+            "<tfoot><tr><td>Total</td>"
+            f'<td class="num">{tot_src}</td>'
+            f'<td class="num">{_num(tot_own)}</td>'
+            f'<td class="num">{_num(tot_pres)}</td>'
+            f'<td class="num">{_num(tot_chg)}</td></tr></tfoot>'
+        )
+    parts.append("</table>")
 
     # detail
     parts.append("<h2>Detail</h2>")

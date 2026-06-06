@@ -98,6 +98,47 @@ def test_diff_table_uses_env_columns_and_slash_header(tmp_path):
     assert "<th>bench</th>" in html and "<th>prod</th>" in html
 
 
+def _many_folders(tmp_path, count):
+    """Two sources whose ``count`` folders each differ in one JOB attribute."""
+
+    def export(mode):
+        return (
+            '<?xml version="1.0"?><DEFTABLE>'
+            + "".join(
+                f'<SMART_FOLDER FOLDER_NAME="GLX_{n:02d}">'
+                f'<JOB JOBNAME="J" CMDLINE="/run --{mode}-{n}" /></SMART_FOLDER>'
+                for n in range(1, count + 1)
+            )
+            + "</DEFTABLE>"
+        )
+
+    for envname, mode in (("bench", "a"), ("prod", "b")):
+        (tmp_path / envname).mkdir()
+        (tmp_path / envname / "e.xml").write_text(export(mode), encoding="utf-8")
+    return [str(tmp_path / "bench"), str(tmp_path / "prod")]
+
+
+def test_summary_dedicated_columns_and_total(tmp_path):
+    """Summary has one column per change type, right-aligned, en-dash for
+    absent, and a Total row once there are more than five units."""
+    r = diff(_many_folders(tmp_path, 6), recipe="controlm")
+    md = r.render("md")
+    assert "| Unit | Sources | Own | Presence | Changed |" in md
+    assert "|---|---:|---:|---:|---:|" in md  # numeric columns right-aligned
+    assert "| 2 | 1 | – | – |" in md  # own diff only -> en-dash, not 0
+    assert "| **Total** | **12** | 6 | – | – |" in md
+    assert "own Δ" not in md and "Changes" not in md  # old combined cell gone
+
+    html = r.render("html")
+    assert '<th class="num">Own</th>' in html
+    assert "<tfoot>" in html and "Total" in html
+
+
+def test_summary_no_total_row_at_or_below_five(tmp_path):
+    md = diff(_many_folders(tmp_path, 5), recipe="controlm").render("md")
+    assert "**Total**" not in md  # threshold is > 5 units
+
+
 def test_summary_links_to_detail_anchors():
     """Each summary row links to its detail section, which carries the anchor."""
     r = _report()
