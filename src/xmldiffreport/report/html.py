@@ -101,6 +101,8 @@ def _render(report: DiffReport) -> str:
         "<title>XML diff report</title>"
         f"<style>{_CSS}</style></head><body>"
     )
+    env = report.source_env
+    disp = report.source_display
     parts = [
         head,
         "<h1>XML diff report</h1>",
@@ -108,6 +110,12 @@ def _render(report: DiffReport) -> str:
         f"<code>{escape(report.recipe_name)}</code> · "
         f"{len(report.sources)} file(s)</p>",
     ]
+
+    # env label -> full file path, listed once so the diff tables can stay narrow
+    parts.append('<h2>Sources</h2><ul class="src">')
+    for s in report.sources:
+        parts.append(f"<li><code>{escape(env[s])}</code> — <code>{escape(disp[s])}</code></li>")
+    parts.append("</ul>")
 
     if not units:
         parts.append(
@@ -137,13 +145,12 @@ def _render(report: DiffReport) -> str:
     parts.append("</tbody></table>")
 
     # detail
-    disp = report.source_display
     parts.append("<h2>Detail</h2>")
     for i, nd in enumerate(units, 1):
         parts.append(f'<h3 id="unit-{i}"><code>{escape(nd.ident)}</code> ({escape(nd.tag)})</h3>')
         parts.append(
-            '<p class="src">Sources: '
-            + ", ".join(f"<code>{escape(disp[s])}</code>" for s in nd.sources)
+            '<p class="src"><strong>Sources:</strong> '
+            + ", ".join(f"<code>{escape(env[s])}</code>" for s in nd.sources)
             + "</p>"
         )
         parts += _node(nd, nd.sources, 0, disp)

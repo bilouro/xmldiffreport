@@ -67,13 +67,21 @@ def _render_node(nd: NodeDiff, srcs: list[str], depth: int, disp: dict[str, str]
 
 def _render(report: DiffReport) -> str:
     units = report.units
+    env = report.source_env
+    disp = report.source_display
     lines = [
         "# XML diff report",
         "",
         f"_Generated: {report.generated_at} · recipe: `{report.recipe_name}` · "
         f"{len(report.sources)} file(s)_",
         "",
+        "## Sources",
+        "",
     ]
+    # env label -> full file path, listed once here so the tables can stay narrow
+    for s in report.sources:
+        lines.append(f"- `{env[s]}` — `{disp[s]}`")
+    lines.append("")
     if not units:
         lines += ["No shared unit with differences. **Nothing to report.**", ""]
         return "\n".join(lines)
@@ -93,7 +101,6 @@ def _render(report: DiffReport) -> str:
         lines.append(f"| [`{ident}` ({nd.tag})](#unit-{i}) | {len(nd.sources)} | {changes} |")
     lines.append("")
 
-    disp = report.source_display
     lines += ["## Detail", ""]
     for i, nd in enumerate(units, 1):
         lines += [
@@ -101,7 +108,7 @@ def _render(report: DiffReport) -> str:
             "",
             f"### `{nd.ident}` ({nd.tag})",
             "",
-            "Sources: " + ", ".join(f"`{disp[s]}`" for s in nd.sources),
+            "**Sources:** " + ", ".join(f"`{env[s]}`" for s in nd.sources),
             "",
         ]
         lines += _render_node(nd, nd.sources, 0, disp)

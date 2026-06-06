@@ -57,6 +57,35 @@ def test_sources_shown_as_dir_and_file_not_full_path():
         assert str(ROOT) not in out  # never the absolute path
 
 
+def _envs(tmp_path):
+    """Three sources, one file per environment directory (bench/prod/uat)."""
+    for envname, mode in (("bench", "a"), ("prod", "b"), ("uat", "c")):
+        d = tmp_path / envname
+        d.mkdir()
+        (d / "export.xml").write_text(
+            '<?xml version="1.0"?><DEFTABLE><SMART_FOLDER FOLDER_NAME="GLX">'
+            f'<JOB JOBNAME="J" CMDLINE="/run --{mode}" /></SMART_FOLDER></DEFTABLE>',
+            encoding="utf-8",
+        )
+    return [str(tmp_path / e) for e in ("bench", "prod", "uat")]
+
+
+def test_top_sources_block_and_env_labels(tmp_path):
+    """Full paths live once in a top Sources block; per-unit lines use the bold
+    `**Sources:**` label with short environment names (the parent dir)."""
+    r = diff(_envs(tmp_path), recipe="controlm")
+
+    md = r.render("md")
+    assert "## Sources" in md  # top block listing env -> file
+    assert "**Sources:** `bench`, `prod`, `uat`" in md  # per-unit, bold, env-only
+
+    html = r.render("html")
+    assert "<h2>Sources</h2>" in html
+    assert "<strong>Sources:</strong>" in html
+    for e in ("bench", "prod", "uat"):
+        assert f"<code>{e}</code>" in html
+
+
 def test_summary_links_to_detail_anchors():
     """Each summary row links to its detail section, which carries the anchor."""
     r = _report()

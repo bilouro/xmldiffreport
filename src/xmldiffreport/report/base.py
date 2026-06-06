@@ -48,13 +48,47 @@ def display_names(labels: list[str]) -> dict[str, str]:
     return out
 
 
+def env_labels(labels: list[str]) -> dict[str, str]:
+    """Map each source label to a short *environment* name: the immediate parent
+    directory (``.../bench/export.xml`` -> ``bench``).
+
+    These are the compact column headers used in the diff tables. The full
+    file paths are still listed once, at the top of the report. If two sources
+    share a parent-directory name, those two fall back to ``parent/file`` so
+    the columns stay distinct.
+    """
+
+    def segments(label: str) -> list[str]:
+        return [p for p in label.replace("\\", "/").split("/") if p]
+
+    def env_of(parts: list[str]) -> str:
+        return parts[-2] if len(parts) >= 2 else (parts[-1] if parts else "")
+
+    segs = {lbl: segments(lbl) for lbl in labels}
+    counts: dict[str, int] = {}
+    for lbl in labels:
+        e = env_of(segs[lbl])
+        counts[e] = counts.get(e, 0) + 1
+
+    out: dict[str, str] = {}
+    for lbl in labels:
+        parts = segs[lbl]
+        if not parts:
+            out[lbl] = lbl
+        elif counts.get(env_of(parts), 0) > 1:  # collision -> disambiguate
+            out[lbl] = "/".join(parts[-2:]) if len(parts) >= 2 else parts[-1]
+        else:
+            out[lbl] = env_of(parts)
+    return out
+
+
 @dataclass
 class DiffReport:
     """The result of a diff and everything a renderer needs to format it.
 
     ``units`` are the ``NodeDiff`` objects that differ; ``sources`` are the
     labels (file paths) that were compared. ``source_display`` maps each label
-    to the compact name shown in the report.
+    to its ``parent/file`` form; ``source_env`` to the bare environment name.
     """
 
     units: list
@@ -62,9 +96,11 @@ class DiffReport:
     recipe_name: str
     generated_at: str = field(default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M"))
     source_display: dict[str, str] = field(init=False, default_factory=dict)
+    source_env: dict[str, str] = field(init=False, default_factory=dict)
 
     def __post_init__(self) -> None:
         self.source_display = display_names(self.sources)
+        self.source_env = env_labels(self.sources)
 
     def __bool__(self) -> bool:
         """True if any unit differs (handy for exit codes)."""
