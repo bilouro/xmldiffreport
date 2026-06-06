@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-06
+
+The report output was redesigned for readability. **This changes the Markdown
+and HTML structure** — downstream tools that parse the previous format may need
+updating.
+
+### Added
+- A top **Sources** block lists each source once (short environment label → full
+  path); diff-table columns now use the short label instead of the full path.
+- The **Summary** has one column per change type — Own / Presence / Changed —
+  right-aligned, with an en-dash for "not applicable" (distinct from a real 0)
+  and a Total row once there are more than five units.
+- **Detail** tables gained a status column: `≠` changed, `⊘` present in some,
+  `±` only one source; the lone diverging value is highlighted (bold in Markdown,
+  red in HTML) and missing values render as italic _absent_.
+- Presence-only children are shown as a ✓ / — matrix instead of free-text
+  bullets; the HTML report additionally tints detail rows by status.
+
+### Changed
+- Project maturity raised to **Beta** (`Development Status :: 4 - Beta`).
+- The first detail-table column header is `Element / attribute` (plain slash).
+
 ## [0.3.2] - 2026-06-05
 
 ### Added
