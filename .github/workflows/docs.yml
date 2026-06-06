@@ -38,6 +38,10 @@ jobs:
       # the sitemap through Jekyll's wrapper and Search Console reports
       # "Couldn't fetch" even though the file is served correctly (200/XML).
       - run: touch site/.nojekyll
+      # Search Console caches the fetch result per sitemap URL. Expose the same
+      # sitemap under a second name so it can be submitted as a fresh entry,
+      # bypassing the stuck "Couldn't fetch" state on sitemap.xml.
+      - run: cp site/sitemap.xml site/sitemap_index.xml
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
