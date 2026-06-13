@@ -15,15 +15,14 @@ on:
 
 permissions:
   contents: read
-  pages: write
   id-token: write
 
 concurrency:
-  group: pages
+  group: docs-deploy
   cancel-in-progress: false
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,26 +33,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libcairo2-dev libfreetype6-dev
       - run: pip install -e ".[docs]"
       - run: mkdocs build --strict
-      # Disable Jekyll processing on GitHub Pages. Without this, Googlebot reads
-      # the sitemap through Jekyll's wrapper and Search Console reports
-      # "Couldn't fetch" even though the file is served correctly (200/XML).
-      - run: touch site/.nojekyll
-      # Search Console caches the fetch result per sitemap URL. Expose the same
-      # sitemap under a second name so it can be submitted as a fresh entry,
-      # bypassing the stuck "Couldn't fetch" state on sitemap.xml.
-      - run: cp site/sitemap.xml site/sitemap_index.xml
-      # Custom domain for GitHub Pages (kept in the artifact so it survives every deploy).
-      - run: echo "xmldiffreport.bilouro.com" > site/CNAME
-      - uses: actions/upload-pages-artifact@v3
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          path: site
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-west-1
+      - run: aws s3 sync site/ "s3://${{ secrets.DOCS_S3_BUCKET }}/" --delete
+      - run: aws cloudfront create-invalidation --distribution-id "${{ secrets.DOCS_CF_DISTRIBUTION_ID }}" --paths "/*"
