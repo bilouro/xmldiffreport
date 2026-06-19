@@ -37,5 +37,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: eu-west-1
-      - run: aws s3 sync site/ "s3://${{ secrets.DOCS_S3_BUCKET }}/" --delete
+      # --exclude report/*: the analytics dashboard is written by report.yml, not
+      # built by mkdocs, so it must survive the --delete sync.
+      - run: aws s3 sync site/ "s3://${{ secrets.DOCS_S3_BUCKET }}/" --delete --exclude "report/*"
       - run: aws cloudfront create-invalidation --distribution-id "${{ secrets.DOCS_CF_DISTRIBUTION_ID }}" --paths "/*"
